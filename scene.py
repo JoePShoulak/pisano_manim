@@ -55,10 +55,13 @@ class Fibonacci(Scene):
             )
         )
 
+        # Begin to show all the numbers mod 10
         modEqs = []
         arrow = MathTex(r"\downarrow", font_size=55).next_to(eqs[0], DOWN)
 
+        # Do this bit by bit
         for i, eq in enumerate(eqs):
+            # Make our new equations
             s = eq.get_tex_string()
             newEq = MathTex(int(s.split('=')[1] if s.find('=') != -1 else s)% 10, font_size=55)
             if i == 0:
@@ -67,6 +70,7 @@ class Fibonacci(Scene):
                 newEq.next_to(modEqs[-1], RIGHT).align_to(eq, RIGHT)
 
             modEqs += [newEq]
+            # Animate the new row plus one arrow moving to follow the action
             self.play(
                 AnimationGroup(
                     Write(arrow) if i == 0 else arrow.animate.align_to(eq, RIGHT),
@@ -75,6 +79,7 @@ class Fibonacci(Scene):
                 )
             )
 
+        # Draw the dots and fade out the arrow to leave everything in a nice state for now
         mdots = Tex(r"\ldots", font_size=55).next_to(modEqs[-1], RIGHT, buff=hD*2/3).shift(DOWN * 0.25) # This is also not correctly aligned
         self.play(                
             AnimationGroup(
