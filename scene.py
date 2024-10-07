@@ -1,4 +1,5 @@
 from manim import *
+import math
 
 hD, vD = 0.75, 0.75
 hOff, vOff = -3, -1.5
@@ -76,17 +77,19 @@ class Fibonacci(Scene):
                     Write(arrow) if i == 0 else arrow.animate.align_to(eq, RIGHT),
                     Write(newEq),
                     lag_ratio=0.5
-                )
+                ), run_time=1.5-math.sin(i*2*math.pi/(2*len(eqs)))
             )
 
         # Draw the dots and fade out the arrow to leave everything in a nice state for now
-        mdots = Tex(r"\ldots", font_size=55).next_to(modEqs[-1], RIGHT, buff=hD*2/3).shift(DOWN * 0.25) # This is also not correctly aligned
+        mdots = Tex(r"\ldots", font_size=55).next_to(modEqs[-1], RIGHT, buff=hD*2/3) # This is also not correctly aligned
         self.play(                
             AnimationGroup(
                     FadeOut(arrow),
                     Write(mdots),
                     lag_ratio=0.5
                 ))
+
+        self.wait()
 
 class Pisano(Scene):
     def construct(self):
