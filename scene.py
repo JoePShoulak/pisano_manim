@@ -83,7 +83,8 @@ class Fibonacci(Scene):
         self.wait(1)
 
         # Replace the dots with the rest of the numbers extending offscreen
-        self.play(modEqns.animate.shift(DOWN), FadeOut(modEqns[-1]))
+        # Left shift is to be centered way later on
+        self.play(modEqns.animate.shift(DOWN).shift(LEFT*0.12590103), FadeOut(modEqns[-1]))
         modEqns.remove(modEqns[-1])
 
         newNums = [5, 9, 4, 3, 7, 0, 7, 7, 4, 1, 5, 6, 1, 7, 8, 5, 3, 8, 1, 9, 0, 9, 9, 8, 7, 5, 2, 7, 9, 6, 5, 1, 6, 7, 3, 0, 3, 3, 6, 9, 5, 4, 9, 3, 2, 5, 7, 2, 9, 1]
@@ -95,13 +96,28 @@ class Fibonacci(Scene):
         self.wait(1)
 
         # Begin building the grid!
+        # First column
+        gridAnim = []
+        for i in range(1, 5):
+            gridAnim += [modEqns[i].animate.next_to(modEqns[0], DOWN, buff=0.25+max(0.625*(i-1), 0))]
+        self.play(*gridAnim)
 
-class Pisano(Scene):
-    def construct(self):
-        title = Text("Pisano Arrays", font_size=89).shift(UP * 3)
-        self.add(title)
+        # Rest of the columns
+        for j in range (1, 12):
+            for i in range(5*j, 5*(j+1)):
+                gridAnim += [modEqns[i].animate.next_to(modEqns[i-5], RIGHT)]
+            for i in range(5*(j+1), len(modEqns)):
+                gridAnim += [modEqns[i].animate.move_to(modEqns[i-4].get_center())]
+            self.play(*gridAnim)
 
-        nums = [0, 1, 1, 2, 3, 5, 8, 3, 1, 4, 5, 9, 4, 3, 7, 0, 7, 7, 4, 1, 5, 6, 1, 7, 8, 5, 3, 8, 1, 9, 0, 9, 9, 8, 7, 5, 2, 7, 9, 6, 5, 1, 6, 7, 3, 0, 3, 3, 6, 9, 5, 4, 9, 3, 2, 5, 7, 2, 9, 1]
+        self.wait(1)
+
+# class Pisano(Scene):
+#     def construct(self):
+#         title = Text("Pisano Arrays", font_size=89).shift(UP * 3)
+#         self.add(title)
+
+#         nums = [0, 1, 1, 2, 3, 5, 8, 3, 1, 4, 5, 9, 4, 3, 7, 0, 7, 7, 4, 1, 5, 6, 1, 7, 8, 5, 3, 8, 1, 9, 0, 9, 9, 8, 7, 5, 2, 7, 9, 6, 5, 1, 6, 7, 3, 0, 3, 3, 6, 9, 5, 4, 9, 3, 2, 5, 7, 2, 9, 1]
 
 # class Test(Scene):
 #     def construct(self):
