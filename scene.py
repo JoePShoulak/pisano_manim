@@ -1,12 +1,17 @@
 from manim import *
 
+def makeTitle(text):
+    return Text(text, font_size=89).to_edge(UP)
+
+
+
 class Fibonacci(Scene):
     def construct(self):
         # Title and definition of the Fibonacci numbers
-        fibTitle = Text("Fibonacci Numbers", font_size=89).to_edge(UP)
-        fibDef = MathTex(r"f_{0} = 0, \ f_{1} = 1, \ f_{n}=f_{n-1}+f_{n-2}", font_size=55).next_to(fibTitle, DOWN)
+        title = makeTitle("Fibonacci Numbers")
+        fibDef = MathTex(r"f_{0} = 0, \ f_{1} = 1, \ f_{n}=f_{n-1}+f_{n-2}", font_size=55).next_to(title, DOWN)
         self.wait()
-        self.play(Write(fibTitle))
+        self.play(Write(title))
         self.play(Write(fibDef))
 
         # Drawing the fibonacci equations
@@ -40,7 +45,7 @@ class Fibonacci(Scene):
         self.wait(1)
 
         # New definition at the top of the screen
-        modDef = Tex("A number modulus 10 is the one's digit", font_size=55).next_to(fibTitle, DOWN)
+        modDef = Tex("A number modulus 10 is the one's digit", font_size=55).next_to(title, DOWN)
         self.play(Write(modDef))
         self.wait(1)
 
@@ -72,19 +77,20 @@ class Fibonacci(Scene):
         self.wait(1)
 
         # Fade out the old numbers and shift these up
-        self.play(modEqns.animate.arrange(RIGHT).next_to(modDef, DOWN), FadeOut(eqns))
+        # Left shift is to be centered way later on
+        self.play(modEqns.animate.arrange(RIGHT).next_to(modDef, DOWN).shift(LEFT*0.12590103), FadeOut(eqns))
         self.wait(1)
 
         # Psuedo scene change
-        pisanoTitle = Text("Pisano Arrays", font_size=89).to_edge(UP)
-        pisDef = Tex("Pisano Arrays need a height and a modulus", font_size=55).move_to(fibDef.get_center())
-        self.play(Transform(fibTitle, pisanoTitle), FadeOut(modDef))
+        pisanoTitle = makeTitle("Pisano Arrays")
+        pisDef = Tex("Pisano Arrays need a ", "modulus", " and a ", "height", font_size=55).move_to(fibDef.get_center())
+        pisDef.set_color_by_tex("modulus", RED).set_color_by_tex("height", ORANGE)
+        self.play(Transform(title, pisanoTitle), FadeOut(modDef))
         self.play(Write(pisDef))
         self.wait(1)
 
         # Replace the dots with the rest of the numbers extending offscreen
-        # Left shift is to be centered way later on
-        self.play(modEqns.animate.shift(DOWN).shift(LEFT*0.12590103), FadeOut(modEqns[-1]))
+        self.play(modEqns.animate.shift(DOWN), FadeOut(modEqns[-1]))
         modEqns.remove(modEqns[-1])
 
         newNums = [5, 9, 4, 3, 7, 0, 7, 7, 4, 1, 5, 6, 1, 7, 8, 5, 3, 8, 1, 9, 0, 9, 9, 8, 7, 5, 2, 7, 9, 6, 5, 1, 6, 7, 3, 0, 3, 3, 6, 9, 5, 4, 9, 3, 2, 5, 7, 2, 9, 1]
@@ -104,39 +110,93 @@ class Fibonacci(Scene):
 
         # Rest of the columns
         for j in range (1, 12):
+            # Move the next 5 into a column
             for i in range(5*j, 5*(j+1)):
                 gridAnim += [modEqns[i].animate.next_to(modEqns[i-5], RIGHT)]
+            # Move the rest down to be columns on the next round
             for i in range(5*(j+1), len(modEqns)):
                 gridAnim += [modEqns[i].animate.move_to(modEqns[i-4].get_center())]
             self.play(*gridAnim)
 
         self.wait(1)
 
-# class Pisano(Scene):
-#     def construct(self):
-#         title = Text("Pisano Arrays", font_size=89).shift(UP * 3)
-#         self.add(title)
+        # Draw the brackets and defining left hand side
+        lBrack = MathTex("[").scale(6).next_to(modEqns, LEFT)
+        lHDef = MathTex("P(", "m", ",", "h", ")", "=").scale(1.25).next_to(lBrack, LEFT).set_color_by_tex("m", RED).set_color_by_tex("h", ORANGE)
+        rBrack = MathTex("]").scale(6).next_to(modEqns, RIGHT)
+        self.play(
+            Write(lHDef[0]), Write(lHDef[2]), Write(lHDef[4:]),
+            FadeOut(pisDef[0]), Transform(pisDef[1], lHDef[1]), FadeOut(pisDef[2]), Transform(pisDef[3], lHDef[3]),
+            Write(lBrack),
+            Write(rBrack),
+        )
+        self.wait()
 
-#         nums = [0, 1, 1, 2, 3, 5, 8, 3, 1, 4, 5, 9, 4, 3, 7, 0, 7, 7, 4, 1, 5, 6, 1, 7, 8, 5, 3, 8, 1, 9, 0, 9, 9, 8, 7, 5, 2, 7, 9, 6, 5, 1, 6, 7, 3, 0, 3, 3, 6, 9, 5, 4, 9, 3, 2, 5, 7, 2, 9, 1]
+        # Update the definition to show the correct numbers
+        mod10 = MathTex(10, color=RED).scale(1.1).next_to(lHDef[0], RIGHT, buff=0.0)
+        height5 = MathTex(5, color=ORANGE).scale(1.1).next_to(lHDef[4], LEFT, buff=0.1)
+        self.play(
+            lHDef[0].animate.shift(LEFT * 0.1),
+            Transform(pisDef[1], mod10),
+            Transform(pisDef[3], height5)
+        )
+        self.wait()
 
-# class Test(Scene):
-#     def construct(self):
-#         vals = [0,1,1]
-#         eqns = VGroup(
-#             MathTex(*r"{:.0f}  +  {:.0f}  =  {:.0f}".format(*vals).split("  "))
-#         )
-#         for i in range(6):
-#             vals.append(vals[1]+vals[2])
-#             vals.pop(0)
-#             eqn = MathTex(*r"{:.0f}  +  {:.0f}  =  {:.0f}".format(*vals).split("  "))
-#             eqn.next_to(eqns[-1],DOWN).shift((eqns[-1][3].get_bottom()[0]-eqn[1].get_top()[0])*RIGHT)
-#             eqns += eqn
-#         eqns.center()
-#         self.play(Write(eqns))
-#         self.wait(1)
-        
-#         for eqn in eqns:
-#             self.play(Transform(eqn, eqn[4]))
-#         self.wait(1)
+        # Mini scene change
+        gridLabel = VGroup(lHDef[0], pisDef[1], lHDef[2], pisDef[3], lHDef[4])
+        patternTitle = makeTitle("Patterns")
+        self.play(
+            gridLabel.animate.scale(1.5).to_edge(UL),
+            Transform(title, patternTitle),
+            FadeOut(lHDef[5]), FadeOut(lBrack), FadeOut(rBrack)
+        )
+        self.play(modEqns.animate.scale(1.25).to_edge(LEFT))
+        self.wait()
 
-#         self.play(eqns.animate.arrange(RIGHT))
+        # Pattern: diagonal palindrome
+        palDemo = VGroup(*[Tex(eqn.get_tex_string(), color=YELLOW) for eqn in modEqns[1:20:6]]).scale(2).arrange(RIGHT, buff=1.0).next_to(modEqns, RIGHT).to_edge(RIGHT, buff=1.5).scale(0)
+        self.play(
+            modEqns[1:20:6].animate.set_color(YELLOW),
+            palDemo.animate.become(VGroup(*[Tex(eqn.get_tex_string(), color=YELLOW) for eqn in modEqns[1:20:6]])).scale(2).arrange(RIGHT, buff=1.0).next_to(modEqns, RIGHT).to_edge(RIGHT, buff=1.5),
+            run_time=2.0
+        )
+        palCopy = palDemo.copy()
+        self.play(
+            palDemo.animate.shift(UP),
+            palCopy.animate.shift(DOWN)
+        )
+        self.play(
+            palCopy[0].animate.move_to(palCopy[3].get_center()),
+            palCopy[1].animate.move_to(palCopy[2].get_center()),
+            palCopy[2].animate.move_to(palCopy[1].get_center()),
+            palCopy[3].animate.move_to(palCopy[0].get_center()),
+        )
+        self.play(
+            palDemo.animate.shift(DOWN),
+            palCopy.animate.shift(UP)
+        )
+        # next round
+        self.play(FadeOut(palCopy), run_time=0.01)
+        self.play(
+            modEqns[1:20:6].animate.set_color(WHITE),
+            palDemo.animate.become(VGroup(*[Tex(eqn.get_tex_string(), color=YELLOW) for eqn in modEqns[6:25:6]])).scale(2).arrange(RIGHT, buff=1.0).next_to(modEqns, RIGHT).to_edge(RIGHT, buff=1.5),
+            modEqns[6:25:6].animate.set_color(YELLOW),
+            run_time=2.0
+        )
+        palCopy = palDemo.copy()
+        self.play(
+            palDemo.animate.shift(UP),
+            palCopy.animate.shift(DOWN)
+        )
+        self.play(
+            palCopy[0].animate.move_to(palCopy[3].get_center()),
+            palCopy[1].animate.move_to(palCopy[2].get_center()),
+            palCopy[2].animate.move_to(palCopy[1].get_center()),
+            palCopy[3].animate.move_to(palCopy[0].get_center()),
+        )
+        self.play(
+            palDemo.animate.shift(DOWN),
+            palCopy.animate.shift(UP)
+        )
+
+        self.wait()
