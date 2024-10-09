@@ -1,59 +1,9 @@
 from manim import *
 
-def makeTitle(text):
-    return Text(text, font_size=89).to_edge(UP)
-
-HIGHLIGHT_COLOR=YELLOW_D
-
-def highlight(mob):
-    return mob.animate.set_color(HIGHLIGHT_COLOR)
-
-def unhighlight(mob):
-    return mob.animate.set_color(WHITE)
-
-def palindromeDemo(modEqns, slice, palDemo, scene, first=False, last=False):
-    def makeDemo(): # Make the 4 numbers we'll be moving around
-        return VGroup(*[Tex(eqn.get_tex_string(), color=HIGHLIGHT_COLOR) for eqn in getSelection(slice)]).scale(2).arrange(RIGHT, buff=1.0).next_to(modEqns, RIGHT).to_edge(RIGHT, buff=1.5)
-
-    def getSelection(n): # Get those 4 mobs from the source grid
-        return VGroup(*[modEqns[(1+6*i+5*n) % 60] for i in range(4)])
-
-    introAnims = [highlight(getSelection(slice))] # highlight the new set (in a list to play later)
-    palCopy = makeDemo() # make a copy ahead of time
-
-    if first: palDemo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
-    else: introAnims += [unhighlight(getSelection(slice-1))] # otherwise, unhighlight the last selection (in a list to play later)
-
-    introAnims += [palDemo.animate.become(makeDemo())] # final entry here, morph into the new selection
-
-    scene.play(*introAnims) # play all our intro animations
-
-    if first: # only demo the first reversal
-        scene.play( # split the original and the copy
-            palDemo.animate.shift(UP),
-            palCopy.animate.shift(DOWN)
-        )
-        scene.play( # invert the position of every letter of the copy
-            *[palCopy[i].animate.move_to(palCopy[len(palCopy)-1-i]) for i in range(len(palCopy))]
-        )
-        scene.play( # re overlay the two copies to show they're identical
-            palDemo.animate.shift(DOWN),
-            palCopy.animate.shift(UP)
-        )
-        scene.play(FadeOut(palCopy), run_time=0.01) # kill the copy quick
-         
-    if last: # if we're done, fade out the demo and unhighlight the last text
-        scene.play(
-            FadeOut(palDemo),
-            unhighlight(getSelection(slice))
-        )
-
-    return palDemo # return the demo so we can keep updating and passing it
-
 class Fibonacci(Scene):
     def construct(self):
         # Title and definition of the Fibonacci numbers
-        title = makeTitle("Fibonacci Numbers")
+        title = Text("Fibonacci Numbers", font_size=89).to_edge(UP)
         fibDef = MathTex(r"f_{0} = 0, \ f_{1} = 1, \ f_{n}=f_{n-1}+f_{n-2}", font_size=55).next_to(title, DOWN)
         self.wait()
         self.play(Write(title))
@@ -126,14 +76,14 @@ class Fibonacci(Scene):
         self.play(modEqns.animate.arrange(RIGHT).next_to(modDef, DOWN).shift(LEFT*0.12590103), FadeOut(eqns))
         self.wait(1)
 
-        # Psuedo scene change
-        pisanoTitle = makeTitle("Pisano Arrays")
+        # Prep for scene change
+        pisanoTitle = Text("Pisano Arrays", font_size=89).to_edge(UP)
         self.play(Transform(title, pisanoTitle), FadeOut(modDef))
         self.wait(1)
 
 class Pisano(Scene):
     def construct(self):
-        pisanoTitle = makeTitle("Pisano Arrays")
+        pisanoTitle = Text("Pisano Arrays", font_size=89).to_edge(UP)
         
         pisDef = Tex("Pisano Arrays need a ", "modulus", " and a ", "height", font_size=55).move_to([0, 2.03873432, 0])
         pisDef.set_color_by_tex("modulus", RED).set_color_by_tex("height", ORANGE)
@@ -199,7 +149,7 @@ class Pisano(Scene):
 
         # Mini scene change
         gridLabel = VGroup(lHDef[0], pisDef[1], lHDef[2], pisDef[3], lHDef[4])
-        patternTitle = makeTitle("Patterns")
+        patternTitle = Text("Patterns", font_size=89).to_edge(UP)
         self.play(
             gridLabel.animate.scale(1.5).to_edge(UL),
             Transform(pisanoTitle, patternTitle),
@@ -210,7 +160,7 @@ class Pisano(Scene):
 
 class TenFivePattern(Scene):
     def construct(self):
-        self.title = makeTitle("Patterns")
+        self.title = Text("Patterns", font_size=89).to_edge(UP)
 
         self.label = MathTex("P(", "10", ",", "5", ")")
         self.label.set_color_by_tex("10", RED).set_color_by_tex("5", ORANGE)
@@ -228,19 +178,72 @@ class TenFivePattern(Scene):
         self.add(self.grid)
         self.wait(1)
 
+        self.HIGHLIGHT = YELLOW_D
+
+    def highlight(self, mob):
+        return mob.animate.set_color(self.HIGHLIGHT)
+
+    def unhighlight(self, mob):
+        return mob.animate.set_color(WHITE)
+
 class TenFivePalindrome(TenFivePattern):
     def construct(self):
         super().construct()
 
-        palPattern = Tex("Down-Right Diagonals (below the top row) form ", "palindromes", font_size=34).next_to(self.title, DOWN, buff=0.75)
-        palPattern.set_color_by_tex("palindromes", HIGHLIGHT_COLOR)
-        self.play(Write(palPattern)) 
+        # Write summary
+        summary = Tex("Down-Right Diagonals (below the top row) form ", "palindromes", font_size=34).next_to(self.title, DOWN, buff=0.75)
+        summary.set_color_by_tex("palindromes", self.HIGHLIGHT)
+        self.play(Write(summary)) 
         self.wait(1)
 
+        # Begin Demo
         palDemo = VGroup()
         for i in range(12):
-            palDemo = palindromeDemo(self.grid, i, palDemo, self, first=i==0, last=i==11)
+            palDemo = self.demo(i, palDemo, first=i==0, last=i==11)
         self.wait(1)
 
-    
-    
+        # Cleanup
+        self.play(FadeOut(summary))
+        self.wait(1)
+
+    def demo(self, slice, palDemo, first=False, last=False):
+        def makeDemo(): # Make the 4 numbers we'll be moving around
+            return VGroup(*[Tex(eqn.get_tex_string(), color=self.HIGHLIGHT) for eqn in getSelection(slice)]).scale(2).arrange(RIGHT, buff=1.0).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
+
+        def getSelection(n): # Get those 4 mobs from the source grid
+            return VGroup(*[self.grid[(1+6*i+5*n) % 60] for i in range(4)])
+
+        introAnims = [self.highlight(getSelection(slice))] # highlight the new set (in a list to play later)
+        palCopy = makeDemo() # make a copy ahead of time
+
+        if first: palDemo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
+        else: introAnims += [self.unhighlight(getSelection(slice-1))] # otherwise, unhighlight the last selection (in a list to play later)
+
+        introAnims += [palDemo.animate.become(makeDemo())] # final entry here, morph into the new selection
+
+        self.play(*introAnims) # play all our intro animations
+
+        if first: # only demo the first reversal
+            self.play( # split the original and the copy
+                palDemo.animate.shift(UP),
+                palCopy.animate.shift(DOWN)
+            )
+            self.play( # invert the position of every letter of the copy
+                *[palCopy[i].animate.move_to(palCopy[len(palCopy)-1-i]) for i in range(len(palCopy))]
+            )
+            self.play( # re overlay the two copies to show they're identical
+                palDemo.animate.shift(DOWN),
+                palCopy.animate.shift(UP)
+            )
+            self.play(FadeOut(palCopy), run_time=0.01) # kill the copy quick
+            
+        if last: # if we're done, fade out the demo and unhighlight the last text
+            self.play(
+                FadeOut(palDemo),
+                self.unhighlight(getSelection(slice))
+            )
+        
+        self.wait(0.5)
+
+        return palDemo # return the demo so we can keep updating and passing it
+        
