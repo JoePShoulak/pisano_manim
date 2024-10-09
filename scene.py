@@ -3,7 +3,41 @@ from manim import *
 def makeTitle(text):
     return Text(text, font_size=89).to_edge(UP)
 
+def palindromeDemo(modEqns, slice, palDemo, scene, first=False, last=False):
+    def makeDemo():
+        return VGroup(*[Tex(eqn.get_tex_string(), color=YELLOW) for eqn in modEqns[slice]]).scale(2).arrange(RIGHT, buff=1.0).next_to(modEqns, RIGHT).to_edge(RIGHT, buff=1.5)
 
+    introAnims = [modEqns[slice].animate.set_color(YELLOW)]
+    palCopy = makeDemo()
+
+    if first:
+        palDemo = makeDemo().scale(0)
+    else:
+        introAnims += [modEqns[slice.start-5:slice.stop-5:slice.step].animate.set_color(WHITE)]
+
+    introAnims += [palDemo.animate.become(makeDemo())]
+
+    scene.play(*introAnims)
+    scene.play(
+        palDemo.animate.shift(UP),
+        palCopy.animate.shift(DOWN)
+    )
+    scene.play(
+        *[palCopy[i].animate.move_to(palCopy[len(palCopy)-1-i]) for i in range(len(palCopy))]
+    )
+    scene.play(
+        palDemo.animate.shift(DOWN),
+        palCopy.animate.shift(UP)
+    )
+    scene.play(FadeOut(palCopy), run_time=0.01)
+         
+    if last:
+        scene.play(
+            FadeOut(palDemo),
+            modEqns[slice].animate.set_color(WHITE)
+        )
+
+    return palDemo
 
 class Fibonacci(Scene):
     def construct(self):
@@ -154,49 +188,9 @@ class Fibonacci(Scene):
         self.wait()
 
         # Pattern: diagonal palindrome
-        palDemo = VGroup(*[Tex(eqn.get_tex_string(), color=YELLOW) for eqn in modEqns[1:20:6]]).scale(2).arrange(RIGHT, buff=1.0).next_to(modEqns, RIGHT).to_edge(RIGHT, buff=1.5).scale(0)
-        self.play(
-            modEqns[1:20:6].animate.set_color(YELLOW),
-            palDemo.animate.become(VGroup(*[Tex(eqn.get_tex_string(), color=YELLOW) for eqn in modEqns[1:20:6]])).scale(2).arrange(RIGHT, buff=1.0).next_to(modEqns, RIGHT).to_edge(RIGHT, buff=1.5),
-            run_time=2.0
-        )
-        palCopy = palDemo.copy()
-        self.play(
-            palDemo.animate.shift(UP),
-            palCopy.animate.shift(DOWN)
-        )
-        self.play(
-            palCopy[0].animate.move_to(palCopy[3].get_center()),
-            palCopy[1].animate.move_to(palCopy[2].get_center()),
-            palCopy[2].animate.move_to(palCopy[1].get_center()),
-            palCopy[3].animate.move_to(palCopy[0].get_center()),
-        )
-        self.play(
-            palDemo.animate.shift(DOWN),
-            palCopy.animate.shift(UP)
-        )
-        # next round
-        self.play(FadeOut(palCopy), run_time=0.01)
-        self.play(
-            modEqns[1:20:6].animate.set_color(WHITE),
-            palDemo.animate.become(VGroup(*[Tex(eqn.get_tex_string(), color=YELLOW) for eqn in modEqns[6:25:6]])).scale(2).arrange(RIGHT, buff=1.0).next_to(modEqns, RIGHT).to_edge(RIGHT, buff=1.5),
-            modEqns[6:25:6].animate.set_color(YELLOW),
-            run_time=2.0
-        )
-        palCopy = palDemo.copy()
-        self.play(
-            palDemo.animate.shift(UP),
-            palCopy.animate.shift(DOWN)
-        )
-        self.play(
-            palCopy[0].animate.move_to(palCopy[3].get_center()),
-            palCopy[1].animate.move_to(palCopy[2].get_center()),
-            palCopy[2].animate.move_to(palCopy[1].get_center()),
-            palCopy[3].animate.move_to(palCopy[0].get_center()),
-        )
-        self.play(
-            palDemo.animate.shift(DOWN),
-            palCopy.animate.shift(UP)
-        )
-
+        palDemo = VGroup()
+        palDemo = palindromeDemo(modEqns, slice(1,20,6), palDemo, self, first=True)
+        palDemo = palindromeDemo(modEqns, slice(6,25,6), palDemo, self)
+        palDemo = palindromeDemo(modEqns, slice(11,30,6), palDemo, self, last=True)
+      
         self.wait()
