@@ -3,41 +3,52 @@ from manim import *
 def makeTitle(text):
     return Text(text, font_size=89).to_edge(UP)
 
+HIGHLIGHT_COLOR=YELLOW_D
+
+def highlight(mob):
+    return mob.animate.set_color(HIGHLIGHT_COLOR)
+
+def unhighlight(mob):
+    return mob.animate.set_color(WHITE)
+
 def palindromeDemo(modEqns, slice, palDemo, scene, first=False, last=False):
-    def makeDemo():
-        return VGroup(*[Tex(eqn.get_tex_string(), color=YELLOW) for eqn in modEqns[slice]]).scale(2).arrange(RIGHT, buff=1.0).next_to(modEqns, RIGHT).to_edge(RIGHT, buff=1.5)
+    def makeDemo(): # Make the 4 numbers we'll be moving around
+        return VGroup(*[Tex(eqn.get_tex_string(), color=HIGHLIGHT_COLOR) for eqn in getSelection(slice)]).scale(2).arrange(RIGHT, buff=1.0).next_to(modEqns, RIGHT).to_edge(RIGHT, buff=1.5)
 
-    introAnims = [modEqns[slice].animate.set_color(YELLOW)]
-    palCopy = makeDemo()
+    def getSelection(n): # Get those 4 mobs from the source grid
+        return VGroup(*[modEqns[(1+6*i+5*n) % 60] for i in range(4)])
 
-    if first:
-        palDemo = makeDemo().scale(0)
-    else:
-        introAnims += [modEqns[slice.start-5:slice.stop-5:slice.step].animate.set_color(WHITE)]
+    introAnims = [highlight(getSelection(slice))] # highlight the new set (in a list to play later)
+    palCopy = makeDemo() # make a copy ahead of time
 
-    introAnims += [palDemo.animate.become(makeDemo())]
+    if first: palDemo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
+    else: introAnims += [unhighlight(getSelection(slice-1))] # otherwise, unhighlight the last selection (in a list to play later)
 
-    scene.play(*introAnims)
-    scene.play(
-        palDemo.animate.shift(UP),
-        palCopy.animate.shift(DOWN)
-    )
-    scene.play(
-        *[palCopy[i].animate.move_to(palCopy[len(palCopy)-1-i]) for i in range(len(palCopy))]
-    )
-    scene.play(
-        palDemo.animate.shift(DOWN),
-        palCopy.animate.shift(UP)
-    )
-    scene.play(FadeOut(palCopy), run_time=0.01)
+    introAnims += [palDemo.animate.become(makeDemo())] # final entry here, morph into the new selection
+
+    scene.play(*introAnims) # play all our intro animations
+
+    if first: # only demo the first reversal
+        scene.play( # split the original and the copy
+            palDemo.animate.shift(UP),
+            palCopy.animate.shift(DOWN)
+        )
+        scene.play( # invert the position of every letter of the copy
+            *[palCopy[i].animate.move_to(palCopy[len(palCopy)-1-i]) for i in range(len(palCopy))]
+        )
+        scene.play( # re overlay the two copies to show they're identical
+            palDemo.animate.shift(DOWN),
+            palCopy.animate.shift(UP)
+        )
+        scene.play(FadeOut(palCopy), run_time=0.01) # kill the copy quick
          
-    if last:
+    if last: # if we're done, fade out the demo and unhighlight the last text
         scene.play(
             FadeOut(palDemo),
-            modEqns[slice].animate.set_color(WHITE)
+            unhighlight(getSelection(slice))
         )
 
-    return palDemo
+    return palDemo # return the demo so we can keep updating and passing it
 
 class Fibonacci(Scene):
     def construct(self):
@@ -48,7 +59,7 @@ class Fibonacci(Scene):
         self.play(Write(title))
         self.play(Write(fibDef))
 
-        # Drawing the fibonacci equations
+        # Drawing the Fibonacci equations
         vals = [0,1,1]
         eqns = VGroup(
             MathTex(*r"{:.0f}  +  {:.0f}  =  {:.0f}".format(*vals).split("  "))
@@ -117,9 +128,21 @@ class Fibonacci(Scene):
 
         # Psuedo scene change
         pisanoTitle = makeTitle("Pisano Arrays")
-        pisDef = Tex("Pisano Arrays need a ", "modulus", " and a ", "height", font_size=55).move_to(fibDef.get_center())
-        pisDef.set_color_by_tex("modulus", RED).set_color_by_tex("height", ORANGE)
         self.play(Transform(title, pisanoTitle), FadeOut(modDef))
+        self.wait(1)
+
+class Pisano(Scene):
+    def construct(self):
+        pisanoTitle = makeTitle("Pisano Arrays")
+        
+        pisDef = Tex("Pisano Arrays need a ", "modulus", " and a ", "height", font_size=55).move_to([0, 2.03873432, 0])
+        pisDef.set_color_by_tex("modulus", RED).set_color_by_tex("height", ORANGE)
+
+        modEqns = VGroup(*[MathTex(n) for n in [0, 1, 1, 2, 3, 5, 8, 3, 1, 4, r"\ldots"]])
+        modEqns.arrange(RIGHT).next_to(pisDef, DOWN).shift(LEFT*0.12590103)
+
+        self.add(pisanoTitle)
+        self.add(modEqns)
         self.play(Write(pisDef))
         self.wait(1)
 
@@ -181,16 +204,19 @@ class Fibonacci(Scene):
         patternTitle = makeTitle("Patterns")
         self.play(
             gridLabel.animate.scale(1.5).to_edge(UL),
-            Transform(title, patternTitle),
+            Transform(pisanoTitle, patternTitle),
             FadeOut(lHDef[5]), FadeOut(lBrack), FadeOut(rBrack)
         )
         self.play(modEqns.animate.scale(1.25).to_edge(LEFT))
         self.wait()
 
         # Pattern: diagonal palindrome
+        palPattern = Tex("Down-Right Diagonals (below the top row) form ", "palindromes", font_size=34).next_to(patternTitle, DOWN, buff=0.75)
+        palPattern.set_color_by_tex("palindromes", HIGHLIGHT_COLOR)
+        self.play(Write(palPattern)) 
+        self.wait()
+
         palDemo = VGroup()
-        palDemo = palindromeDemo(modEqns, slice(1,20,6), palDemo, self, first=True)
-        palDemo = palindromeDemo(modEqns, slice(6,25,6), palDemo, self)
-        palDemo = palindromeDemo(modEqns, slice(11,30,6), palDemo, self, last=True)
-      
+        for i in range(12):
+            palDemo = palindromeDemo(modEqns, i, palDemo, self, first=i==0, last=i==11)
         self.wait()
