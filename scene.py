@@ -189,14 +189,12 @@ class Pisano(Scene):
         )
         self.wait()
 
+        lHDef = VGroup(lHDef[0], pisDef[1], lHDef[2], pisDef[3], lHDef[4], lHDef[5])
+
         # Update the definition to show the correct numbers
-        mod10 = MathTex(10, color=RED).scale(1.1).next_to(lHDef[0], RIGHT, buff=0.0)
-        height5 = MathTex(5, color=ORANGE).scale(1.1).next_to(lHDef[4], LEFT, buff=0.1)
-        self.play(
-            lHDef[0].animate.shift(LEFT * 0.1),
-            Transform(pisDef[1], mod10),
-            Transform(pisDef[3], height5)
-        )
+        lHDefNums = MathTex("P(", "10", ",", "5", ")", "=").move_to(lHDef.get_center())
+        lHDefNums.set_color_by_tex("10", RED).set_color_by_tex("5", ORANGE).scale(1.25)
+        self.play(lHDef.animate.become(lHDefNums))
         self.wait()
 
         # Mini scene change
@@ -207,16 +205,42 @@ class Pisano(Scene):
             Transform(pisanoTitle, patternTitle),
             FadeOut(lHDef[5]), FadeOut(lBrack), FadeOut(rBrack)
         )
-        self.play(modEqns.animate.scale(1.25).to_edge(LEFT))
+        self.play(modEqns.animate.arrange_in_grid(rows=5, cols=12, flow_order="dr").scale(1.25).center().to_edge(LEFT).shift(DOWN))
         self.wait()
 
-        # Pattern: diagonal palindrome
-        palPattern = Tex("Down-Right Diagonals (below the top row) form ", "palindromes", font_size=34).next_to(patternTitle, DOWN, buff=0.75)
+class TenFivePattern(Scene):
+    def construct(self):
+        self.title = makeTitle("Patterns")
+
+        self.label = MathTex("P(", "10", ",", "5", ")")
+        self.label.set_color_by_tex("10", RED).set_color_by_tex("5", ORANGE)
+        self.label.scale(1.875).to_edge(UL)
+
+        residuals = [0, 1]
+        while len(residuals) != 60:
+            residuals += [(residuals[-2] + residuals[-1]) % 10]
+
+        self.grid = VGroup(*[Tex(n) for n in residuals])
+        self.grid.arrange_in_grid(rows=5, cols=12, flow_order="dr").scale(1.25).center().to_edge(LEFT).shift(DOWN)
+
+        self.add(self.title)
+        self.add(self.label)
+        self.add(self.grid)
+        self.wait(1)
+
+class TenFivePalindrome(TenFivePattern):
+    def construct(self):
+        super().construct()
+
+        palPattern = Tex("Down-Right Diagonals (below the top row) form ", "palindromes", font_size=34).next_to(self.title, DOWN, buff=0.75)
         palPattern.set_color_by_tex("palindromes", HIGHLIGHT_COLOR)
         self.play(Write(palPattern)) 
-        self.wait()
+        self.wait(1)
 
         palDemo = VGroup()
         for i in range(12):
-            palDemo = palindromeDemo(modEqns, i, palDemo, self, first=i==0, last=i==11)
-        self.wait()
+            palDemo = palindromeDemo(self.grid, i, palDemo, self, first=i==0, last=i==11)
+        self.wait(1)
+
+    
+    
