@@ -233,7 +233,7 @@ class TenFiveDiagSum(TenFivePattern):
         def getSelection(n): # Get those 4 mobs from the source grid
             return VGroup(*[self.grid[(4+4*i+5*n) % 60] for i in range(4)])
         
-        ## SETUP ###
+        ### SETUP ###
         introAnims = [self.highlight(getSelection(slice))] # highlight the new set
         if first:
             self.demo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
@@ -262,4 +262,62 @@ class TenFiveDiagSum(TenFivePattern):
         elif last: # if we're done, fade out the demo and unhighlight the last text
             self.play(FadeOut(self.demo), self.unhighlight(getSelection(slice)))
         self.wait()
+        
+class TenFiveRightAngle(TenFivePattern):
+    def construct(self):
+        ### INTRO ###
+        # Setup the scene and take a beat
+        super().construct()
+        self.writeSummary(Tex("Right Angles at the bottom (\"pointing\" down-right) ", "repeat", font_size=34).set_color_by_tex("repeat", self.HIGHLIGHT))
+
+        ### DEMO ###
+        for i in range(12):
+            self.playDemo(i, first=i==0, last=i==11)
+
+        ### OUTRO ###
+        self.cleanup()
+
+    def playDemo(self, slice, first=False, last=False):
+        ### HELPERS ###
+        def makeDemo(): # Make the 4 numbers we'll be moving around
+            demo = VGroup(*getSelection(slice)).copy().scale(2/1.5)
+            for d in demo[:-1]:
+                d.color = self.HIGHLIGHT
+            demo[1].next_to(demo[0], RIGHT)
+            demo[4].next_to(demo[1], RIGHT)
+            demo[3].next_to(demo[4], UP)
+            demo[2].next_to(demo[3], UP)
+            return demo.next_to(self.grid, RIGHT).to_edge(RIGHT, buff=3)
+
+        def getSelection(n): # Get those 4 mobs from the source grid
+            return VGroup(
+                *[self.grid[(4+5*i+5*n) % 60] for i in range(2)],
+                *[self.grid[(12+1*i+5*n) % 60] for i in range(2)],
+                self.grid[(14+5*n) % 60]
+            )
+        
+        ### SETUP ###
+        introAnims = [self.highlight(getSelection(slice)[:-1])] # highlight the new set
+        if first:
+            self.demo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
+        else:
+            introAnims += [self.unhighlight(getSelection(slice-1)[i]) for i in [0, 2, 3]] # otherwise, unhighlight the last selection
+        introAnims += [self.demo.animate.become(makeDemo())] # become the current selection
+        self.wait()
+
+        ### ANIMATIONS ###
+        self.play(*introAnims) # play all our intro animations
+        if first: self.wait()
+        self.play(
+            self.demo[3].animate.next_to(self.demo[3], LEFT),
+            self.demo[2].animate.next_to(self.demo[2], DOWN),
+            self.demo[1].animate.next_to(self.demo[1], RIGHT),
+            self.demo[0].animate.next_to(self.demo[0], RIGHT),
+            FadeOut(self.demo[4], scale=0)
+        )
+        self.demo[4].scale(0)
+
+        if last: # if we're done, fade out the demo and unhighlight the last text
+            self.play(FadeOut(self.demo), self.unhighlight(getSelection(slice)))
+        self.wait(0.5)
         
