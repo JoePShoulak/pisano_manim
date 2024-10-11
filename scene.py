@@ -154,7 +154,7 @@ class Pisano(Scene):
         self.play(modEqns.animate.arrange_in_grid(rows=5, cols=12, flow_order="dr").scale(1.25).center().to_edge(LEFT).shift(DOWN))
         self.wait()
 
-class TenFivePalindrome(TenFivePattern):
+class TenFiveDiagPalindrome(TenFivePattern):
     def construct(self):
         ### INTRO ###
         # Setup the scene and take a beat
@@ -162,14 +162,13 @@ class TenFivePalindrome(TenFivePattern):
         self.writeSummary(Tex("Down-Right Diagonals (below the top row) form ", "palindromes", font_size=34).set_color_by_tex("palindromes", self.HIGHLIGHT))
 
         ### DEMO ###
-        self.palDemo = VGroup()
         for i in range(12):
-            self.demo(i, first=i==0, last=i==11)
+            self.playDemo(i, first=i==0, last=i==11)
 
         ### OUTRO ###
         self.cleanup()
 
-    def demo(self, slice, first=False, last=False):
+    def playDemo(self, slice, first=False, last=False):
         ### HELPERS ###
         def makeDemo(): # Make the 4 numbers we'll be moving around
             demo = VGroup(*[Tex(eqn.get_tex_string(), color=self.HIGHLIGHT) for eqn in getSelection(slice)])
@@ -180,21 +179,86 @@ class TenFivePalindrome(TenFivePattern):
 
         ### SETUP ###
         introAnims = [self.highlight(getSelection(slice))] # highlight the new set
-        palCopy = makeDemo() # make a copy ahead of time
+        copy = makeDemo() # make a copy ahead of time
         if first:
-            self.palDemo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
+            self.demo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
         else:
             introAnims += [self.unhighlight(getSelection(slice-1))] # otherwise, unhighlight the last selection
-        introAnims += [self.palDemo.animate.become(makeDemo())] # become the current selection
+        introAnims += [self.demo.animate.become(makeDemo())] # become the current selection
 
         ### ANIMATIONS ###
         self.play(*introAnims) # play all our intro animations
         if first: # only demo the first reversal
-            self.play(self.palDemo.animate.shift(UP), palCopy.animate.shift(DOWN)) # split the original and the copy
-            self.play(*[palCopy[i].animate.move_to(palCopy[len(palCopy)-1-i]) for i in range(len(palCopy))]) # invert the position of every letter of the copy
-            self.play(self.palDemo.animate.shift(DOWN), palCopy.animate.shift(UP)) # re-overlay the two copies to show they're identical
-            self.play(FadeOut(palCopy), run_time=0.01) # kill the copy quick
+            self.play(self.demo.animate.shift(UP), copy.animate.shift(DOWN)) # split the original and the copy
+            self.play(*[copy[i].animate.move_to(copy[len(copy)-1-i]) for i in range(len(copy))]) # invert the position of every letter of the copy
+            self.play(self.demo.animate.shift(DOWN), copy.animate.shift(UP)) # re-overlay the two copies to show they're identical
+            self.play(FadeOut(copy), run_time=0.01) # kill the copy quick
         elif last: # if we're done, fade out the demo and unhighlight the last text
-            self.play(FadeOut(self.palDemo), self.unhighlight(getSelection(slice)))
+            self.play(FadeOut(self.demo), self.unhighlight(getSelection(slice)))
         self.wait(0.5)
+        
+class TenFiveDiagSum(TenFivePattern):
+    def construct(self):
+        ### INTRO ###
+        # Setup the scene and take a beat
+        super().construct()
+        self.writeSummary(Tex("Down-Left Diagonals (below the top row) form ", "sums", " pointing inward", font_size=34).set_color_by_tex("sums", self.HIGHLIGHT))
+
+        ### DEMO ###
+        for i in range(12):
+            self.playDemo(i, first=i==0, last=i==11)
+
+        ### OUTRO ###
+        self.cleanup()
+
+    def playDemo(self, slice, first=False, last=False):
+        ### HELPERS ###
+        def makeEquation(a, b, mod=False):
+            if mod:
+                return MathTex(a, "+", b, r"\Rightarrow", (a+b)%10, color=self.HIGHLIGHT)
+            else:
+                return MathTex(a, "+", b, "=", a+b, color=self.HIGHLIGHT)
+                
+        def makeDemo(): # Make the 4 numbers we'll be moving around
+            sel = [int(tex.get_tex_string()) for tex in getSelection(slice)]
+            demo = VGroup(makeEquation(sel[3], sel[2]), makeEquation(sel[0], sel[1]))
+            demo.scale(2).arrange(DOWN).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
+
+            def demoUpdater(demo):
+                k = demo[0].get_left()[0] < demo[1].get_left()[0]
+                demo[1-k].align_to(demo[k], LEFT)
+
+            return demo.add_updater(demoUpdater)
+
+        def getSelection(n): # Get those 4 mobs from the source grid
+            return VGroup(*[self.grid[(4+4*i+5*n) % 60] for i in range(4)])
+        
+        ## SETUP ###
+        introAnims = [self.highlight(getSelection(slice))] # highlight the new set
+        if first:
+            self.demo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
+        else:
+            introAnims += [self.unhighlight(getSelection(slice-1))] # otherwise, unhighlight the last selection
+        introAnims += [self.demo.animate.become(makeDemo())] # become the current selection
+        
+        ### ANIMATIONS ###
+        self.play(*introAnims) # play all our intro animations
+        sel = [int(tex.get_tex_string()) for tex in getSelection(slice)]
+        reduceAnim = []
+        if sel[3]+sel[2] >= 10:
+            newEq = makeEquation(sel[3], sel[2], mod=True)
+            newEq.scale(2).move_to(self.demo[0].get_center()).align_to(self.demo[0], LEFT)
+            reduceAnim.append(self.demo[0].animate.become(newEq))
+        if sel[0]+sel[1] >= 10:
+            newEq = makeEquation(sel[0], sel[1], mod=True)
+            newEq.scale(2).move_to(self.demo[1].get_center()).align_to(self.demo[1], LEFT)
+            reduceAnim.append(self.demo[1].animate.become(newEq))
+        if reduceAnim:
+            self.play(*reduceAnim)
+
+        if first:
+            self.wait()
+        elif last: # if we're done, fade out the demo and unhighlight the last text
+            self.play(FadeOut(self.demo), self.unhighlight(getSelection(slice)))
+        self.wait()
         

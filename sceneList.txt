@@ -1,3 +1,4 @@
 file './media/videos/scene/480p15/Fibonacci.mp4'
 file './media/videos/scene/480p15/Pisano.mp4'
-file './media/videos/scene/480p15/TenFivePalindrome.mp4'
+file './media/videos/scene/480p15/TenFiveDiagPalindrome.mp4'
+file './media/videos/scene/480p15/TenFiveDiagSum.mp4'
