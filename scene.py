@@ -254,6 +254,7 @@ class TenFiveDiagSum(TenFivePattern):
             newEq.scale(2).move_to(self.demo[1].get_center()).align_to(self.demo[1], LEFT)
             reduceAnim.append(self.demo[1].animate.become(newEq))
         if reduceAnim:
+            self.wait(0.5)
             self.play(*reduceAnim)
 
         if first:
