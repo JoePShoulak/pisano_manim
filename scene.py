@@ -6,7 +6,8 @@ class Fibonacci(Scene):
         ### INTRO ###
         # Title and definition of the Fibonacci numbers
         title = Text("Fibonacci Numbers", font_size=89).to_edge(UP)
-        subtitle = MathTex(r"f_{0} = 0, \ f_{1} = 1, \ f_{n}=f_{n-1}+f_{n-2}", font_size=55).next_to(title, DOWN)
+        subtitle = MathTex(r"f_{0} = 0, \ f_{1} = 1, \ f_{n}=f_{n-1}+f_{n-2}", font_size=55)
+        subtitle.to_edge(UP, buff=2)
         self.wait()
         self.play(Write(title))
         self.play(Write(subtitle))
@@ -43,7 +44,7 @@ class Fibonacci(Scene):
 
         ### MODULUS ###
         # New definition at the top of the screen
-        subtitle = Tex("A number modulus 10 is the one's digit", font_size=55).next_to(title, DOWN)
+        subtitle = Tex("A number modulus 10 is the one's digit", font_size=55).to_edge(UP, buff=2)
         self.play(Write(subtitle))
         self.wait()
 
@@ -55,7 +56,7 @@ class Fibonacci(Scene):
 
         # Make an arrow with a label to be clear what we're doing
         arrow = Arrow(start=UP, end=DOWN).next_to(modEqns[0], UP)
-        arrowGroup = VGroup(arrow, MathTex(r"\bmod 10").add_updater(lambda l : l.next_to(arrow, RIGHT)))
+        arrowGroup = VGroup(arrow, MathTex(r"\bmod_{10}").add_updater(lambda l : l.next_to(arrow, RIGHT)))
 
         # Animate the taking of the modulus
         self.play(Write(modEqns[0]), Write(arrowGroup))
@@ -79,48 +80,48 @@ class Fibonacci(Scene):
 
 class Pisano(Scene):
     def construct(self):
+        ### INTRO ###
+        # Recreate everything from the last scene
         pisanoTitle = Text("Pisano Arrays", font_size=89).to_edge(UP)
-        
-        pisDef = Tex("Pisano Arrays need a ", "modulus", " and a ", "height", font_size=55).move_to([0, 2.03873432, 0])
-        pisDef.set_color_by_tex("modulus", RED).set_color_by_tex("height", ORANGE)
-
+        subtitle = MathTex(r"\text{The Fibonacci numbers} \bmod_", "{10}", r" \text{ repeat every 60, so } \pi(", "10", ")=60", font_size=34)
+        subtitle.to_edge(UP, buff=2).set_color_by_tex("10", RED)
         modEqns = VGroup(*[MathTex(n) for n in [0, 1, 1, 2, 3, 5, 8, 3, 1, 4, r"\ldots"]])
-        modEqns.arrange(RIGHT).next_to(pisDef, DOWN, buff=1).shift(LEFT*0.12590103)
-
+        modEqns.arrange(RIGHT).next_to(subtitle, DOWN, buff=1).shift(LEFT*0.12590103)
         self.add(pisanoTitle)
         self.add(modEqns)
-        self.play(Write(pisDef))
+        self.play(Write(subtitle))
         self.wait()
 
-        # Replace the dots with the rest of the numbers extending offscreen
-        self.play(modEqns.animate.shift(DOWN), FadeOut(modEqns[-1]))
-        modEqns.remove(modEqns[-1])
+        ### PISANO SEQUENCE 10 ###
+        # Remove the dots
+        dots = modEqns[-1]
+        modEqns.remove(dots)
 
-        newNums = [5, 9, 4, 3, 7, 0, 7, 7, 4, 1, 5, 6, 1, 7, 8, 5, 3, 8, 1, 9, 0, 9, 9, 8, 7, 5, 2, 7, 9, 6, 5, 1, 6, 7, 3, 0, 3, 3, 6, 9, 5, 4, 9, 3, 2, 5, 7, 2, 9, 1]
-        for num in newNums:
-            mob = MathTex(num).next_to(modEqns[-1], RIGHT)
-            modEqns.add(mob)
-
-        self.play(Write(modEqns[10:]))
+        # Write in the rest of the numbers
+        for num in [5, 9, 4, 3, 7, 0, 7, 7, 4, 1, 5, 6, 1, 7, 8, 5, 3, 8, 1, 9, 0, 9, 9, 8, 7, 5, 2, 7, 9, 6, 5, 1, 6, 7, 3, 0, 3, 3, 6, 9, 5, 4, 9, 3, 2, 5, 7, 2, 9, 1]:
+            modEqns.add(MathTex(num).next_to(modEqns[-1], RIGHT))
+        self.play(FadeOut(dots), Write(modEqns[10:]))
+        self.wait()
+        
+        # Fade out the pisano period mention
+        self.play(FadeOut(subtitle))
         self.wait()
 
-        # Begin building the grid!
+        ### P(10,5) DEFINITION ###
+        # Throw up a new subtitile for the occasion
+        subtitle = Tex("Pisano Arrays need a ", "modulus", " and a ", "height", font_size=55)
+        subtitle.to_edge(UP, buff=2).set_color_by_tex("modulus", RED).set_color_by_tex("height", ORANGE)
+        self.play(Write(subtitle))
+
         # First column
-        gridAnim = []
-        for i in range(1, 5):
-            gridAnim += [modEqns[i].animate.next_to(modEqns[0], DOWN, buff=0.25+max(0.625*(i-1), 0))]
-        self.play(*gridAnim)
+        self.play(*[modEqns[i].animate.next_to(modEqns[0], DOWN, buff=0.25+max(0.625*(i-1), 0)) for i in range(1, 5)])
 
         # Rest of the columns
         for j in range (1, 12):
-            # Move the next 5 into a column
-            for i in range(5*j, 5*(j+1)):
-                gridAnim += [modEqns[i].animate.next_to(modEqns[i-5], RIGHT)]
-            # Move the rest down to be columns on the next round
-            for i in range(5*(j+1), len(modEqns)):
-                gridAnim += [modEqns[i].animate.move_to(modEqns[i-4].get_center())]
-            self.play(*gridAnim)
-
+            self.play(
+                *[modEqns[i].animate.next_to(modEqns[i-5], RIGHT) for i in range(5*j, 5*(j+1))], # Move the next 5 into a column
+                *[modEqns[i].animate.move_to(modEqns[i-4].get_center()) for i in range(5*(j+1), len(modEqns))] # Move the rest down to be columns on the next round
+            )
         self.wait()
 
         # Draw the brackets and defining left hand side
@@ -129,13 +130,13 @@ class Pisano(Scene):
         rBrack = MathTex("]").scale(6).next_to(modEqns, RIGHT)
         self.play(
             Write(lHDef[0]), Write(lHDef[2]), Write(lHDef[4:]),
-            FadeOut(pisDef[0]), Transform(pisDef[1], lHDef[1]), FadeOut(pisDef[2]), Transform(pisDef[3], lHDef[3]),
+            FadeOut(subtitle[0]), Transform(subtitle[1], lHDef[1]), FadeOut(subtitle[2]), Transform(subtitle[3], lHDef[3]),
             Write(lBrack),
             Write(rBrack),
         )
         self.wait()
 
-        lHDef = VGroup(lHDef[0], pisDef[1], lHDef[2], pisDef[3], lHDef[4], lHDef[5])
+        lHDef = VGroup(lHDef[0], subtitle[1], lHDef[2], subtitle[3], lHDef[4], lHDef[5])
 
         # Update the definition to show the correct numbers
         lHDefNums = MathTex("P(", "10", ",", "5", ")", "=").move_to(lHDef.get_center())
@@ -143,8 +144,9 @@ class Pisano(Scene):
         self.play(lHDef.animate.become(lHDefNums))
         self.wait()
 
+        ### OUTRO ###
         # Prep for scene change
-        gridLabel = VGroup(lHDef[0], pisDef[1], lHDef[2], pisDef[3], lHDef[4])
+        gridLabel = VGroup(lHDef[0], subtitle[1], lHDef[2], subtitle[3], lHDef[4])
         patternTitle = Text("Patterns", font_size=89).to_edge(UP)
         self.play(
             gridLabel.animate.scale(1.5).to_edge(UL),
