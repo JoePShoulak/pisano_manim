@@ -12,9 +12,7 @@ class Fibonacci(Scene):
 
         # Drawing the Fibonacci equations
         vals = [0,1,1]
-        eqns = VGroup(
-            MathTex(*r"{:.0f}  +  {:.0f}  =  {:.0f}".format(*vals).split("  "))
-        )
+        eqns = VGroup(MathTex(*r"{:.0f}  +  {:.0f}  =  {:.0f}".format(*vals).split("  ")))
         for i in range(7):
             vals.append(vals[1]+vals[2])
             vals.pop(0)
@@ -45,25 +43,19 @@ class Fibonacci(Scene):
         self.play(Write(subtitle))
         self.wait(1)
 
-        # Create out modulus numbers
-        modBuff = 2.0
+        # Create our modulus numbers
         modEqns = VGroup(
-            *[MathTex(int(eqn.get_tex_string()) % 10).next_to(eqn, DOWN, buff=modBuff) for eqn in eqns[:2]],
-            *[MathTex(int(eqn[4].get_tex_string()) % 10).next_to(eqn, DOWN, buff=modBuff) for eqn in eqns[2:-1]]
+            *[MathTex(int(eqn.get_tex_string()) % 10).next_to(eqn, DOWN, buff=2) for eqn in eqns[:2]],
+            *[MathTex(int(eqn[4].get_tex_string()) % 10).next_to(eqn, DOWN, buff=2) for eqn in eqns[2:-1]]
         )
         modEqns += MathTex(r"\ldots").next_to(modEqns[-1], RIGHT).align_to(eqns[-1], RIGHT)
 
-        # Make an arrow with an operator to be clear what we're doing
+        # Make an arrow with a label to be clear what we're doing
         arrow = Arrow(start=UP, end=DOWN).next_to(modEqns[0], UP)
-        arrowLabel = MathTex(r"\bmod 10")
-        arrowLabel.add_updater(lambda l : l.next_to(arrow, RIGHT))
-        arrowGroup = VGroup(arrow, arrowLabel)
+        arrowGroup = VGroup(arrow, MathTex(r"\bmod 10").add_updater(lambda l : l.next_to(arrow, RIGHT)))
 
         # Animate the taking of the modulus
-        self.play(
-            Write(modEqns[0]),
-            Write(arrowGroup)
-        )
+        self.play(Write(modEqns[0]), Write(arrowGroup))
         self.wait(1)
         for eqn in modEqns[1:-1]:
             self.play(
@@ -74,8 +66,7 @@ class Fibonacci(Scene):
         self.play(Write(modEqns[-1]), FadeOut(arrowGroup))
         self.wait(1)
 
-        # Fade out the old numbers and shift these up
-        # Left shift is to be centered way later on
+        # Fade out the old numbers and shift these up; left shift is to be centered way later on
         self.play(modEqns.animate.arrange(RIGHT).next_to(subtitle, DOWN).shift(LEFT*0.12590103), FadeOut(eqns))
         self.wait(1)
 
