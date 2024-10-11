@@ -54,22 +54,24 @@ class Fibonacci(Scene):
         modEqns += MathTex(r"\ldots").next_to(modEqns[-1], RIGHT).align_to(eqns[-1], RIGHT)
 
         # Make an arrow with an operator to be clear what we're doing
-        aro = Arrow(start=UP, end=DOWN).next_to(modEqns[0], UP)
-        modArrow = VGroup(aro, MathTex(r"\bmod 10").next_to(aro, RIGHT))
+        arrow = Arrow(start=UP, end=DOWN).next_to(modEqns[0], UP)
+        arrowLabel = MathTex(r"\bmod 10")
+        arrowLabel.add_updater(lambda l : l.next_to(arrow, RIGHT))
+        arrowGroup = VGroup(arrow, arrowLabel)
 
         # Animate the taking of the modulus
         self.play(
             Write(modEqns[0]),
-            Write(modArrow)
+            Write(arrowGroup)
         )
         self.wait(1)
         for eqn in modEqns[1:-1]:
             self.play(
                 AnimationGroup(Write(eqn), run_time=1.0),
-                AnimationGroup(modArrow.animate.align_to(eqn, LEFT).shift(LEFT*0.25*(aro.get_right()[0] - aro.get_left()[0])), run_time=0.33),
+                AnimationGroup(arrow.animate.next_to(eqn, UP), run_time=0.33),
                 lag_ratio=0.5
             )
-        self.play(Write(modEqns[-1]), FadeOut(modArrow))
+        self.play(Write(modEqns[-1]), FadeOut(arrowGroup))
         self.wait(1)
 
         # Fade out the old numbers and shift these up
