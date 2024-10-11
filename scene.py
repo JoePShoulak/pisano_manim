@@ -49,8 +49,6 @@ class Fibonacci(Scene):
         self.wait()
 
         # Create our modulus numbers
-        print(type(eqns[0]))
-        print(type(eqns[5]))
         modEqns = VGroup(*[MathTex(int((eqn if len(eqn) == 1 else eqn[4]).get_tex_string()) % 10).next_to(eqn, DOWN, buff=2) for eqn in eqns[:-1]])
         modEqns += MathTex(r"\ldots").next_to(modEqns[-1], RIGHT).align_to(eqns[-1], RIGHT)
 
@@ -71,7 +69,7 @@ class Fibonacci(Scene):
         self.wait()
 
         # Fade out the old numbers and shift these up; left shift is to be centered way later on
-        self.play(modEqns.animate.arrange(RIGHT).next_to(subtitle, DOWN, buff=1).shift(LEFT*0.12590103), FadeOut(eqns))
+        self.play(modEqns.animate.arrange(RIGHT).to_edge(UP, buff=3).shift(LEFT*0.12590103), FadeOut(eqns))
         self.wait()
 
         ### OUTRO ###
@@ -86,7 +84,7 @@ class Pisano(Scene):
         subtitle = MathTex(r"\text{The Fibonacci numbers} \bmod_", "{10}", r" \text{ repeat every 60, so } \pi(", "10", ")=60", font_size=34)
         subtitle.to_edge(UP, buff=2).set_color_by_tex("10", RED)
         modEqns = VGroup(*[MathTex(n) for n in [0, 1, 1, 2, 3, 5, 8, 3, 1, 4, r"\ldots"]])
-        modEqns.arrange(RIGHT).next_to(subtitle, DOWN, buff=1).shift(LEFT*0.12590103)
+        modEqns.arrange(RIGHT).to_edge(UP, buff=3).shift(LEFT*0.12590103)
         self.add(pisanoTitle)
         self.add(modEqns)
         self.play(Write(subtitle))
@@ -161,23 +159,15 @@ class TenFivePalindrome(TenFivePattern):
         ### INTRO ###
         # Setup the scene and take a beat
         super().construct()
-        self.wait()
-
-        # Write summary
-        summary = Tex("Down-Right Diagonals (below the top row) form ", "palindromes", font_size=34).next_to(self.title, DOWN, buff=0.75)
-        summary.set_color_by_tex("palindromes", self.HIGHLIGHT)
-        self.play(Write(summary)) 
-        self.wait()
+        self.writeSummary(Tex("Down-Right Diagonals (below the top row) form ", "palindromes", font_size=34).set_color_by_tex("palindromes", self.HIGHLIGHT))
 
         ### DEMO ###
         self.palDemo = VGroup()
         for i in range(12):
             self.demo(i, first=i==0, last=i==11)
-        self.wait()
 
         ### OUTRO ###
-        self.play(FadeOut(summary))
-        self.wait()
+        self.cleanup()
 
     def demo(self, slice, first=False, last=False):
         ### HELPERS ###
