@@ -158,6 +158,8 @@ class Pisano(Scene):
 
 class TenFivePalindrome(TenFivePattern):
     def construct(self):
+        ### INTRO ###
+        # Setup the scene and take a beat
         super().construct()
         self.wait()
 
@@ -167,53 +169,42 @@ class TenFivePalindrome(TenFivePattern):
         self.play(Write(summary)) 
         self.wait()
 
-        # Begin Demo
+        ### DEMO ###
         self.palDemo = VGroup()
         for i in range(12):
             self.demo(i, first=i==0, last=i==11)
         self.wait()
 
-        # Cleanup
+        ### OUTRO ###
         self.play(FadeOut(summary))
         self.wait()
 
     def demo(self, slice, first=False, last=False):
+        ### HELPERS ###
         def makeDemo(): # Make the 4 numbers we'll be moving around
-            return VGroup(*[Tex(eqn.get_tex_string(), color=self.HIGHLIGHT) for eqn in getSelection(slice)]).scale(2).arrange(RIGHT, buff=1.0).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
+            demo = VGroup(*[Tex(eqn.get_tex_string(), color=self.HIGHLIGHT) for eqn in getSelection(slice)])
+            return demo.scale(2).arrange(RIGHT, buff=1.0).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
 
         def getSelection(n): # Get those 4 mobs from the source grid
             return VGroup(*[self.grid[(1+6*i+5*n) % 60] for i in range(4)])
 
-        introAnims = [self.highlight(getSelection(slice))] # highlight the new set (in a list to play later)
+        ### SETUP ###
+        introAnims = [self.highlight(getSelection(slice))] # highlight the new set
         palCopy = makeDemo() # make a copy ahead of time
+        if first:
+            self.palDemo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
+        else:
+            introAnims += [self.unhighlight(getSelection(slice-1))] # otherwise, unhighlight the last selection
+        introAnims += [self.palDemo.animate.become(makeDemo())] # become the current selection
 
-        if first: self.palDemo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
-        else: introAnims += [self.unhighlight(getSelection(slice-1))] # otherwise, unhighlight the last selection (in a list to play later)
-
-        introAnims += [self.palDemo.animate.become(makeDemo())] # final entry here, morph into the new selection
-
+        ### ANIMATIONS ###
         self.play(*introAnims) # play all our intro animations
-
         if first: # only demo the first reversal
-            self.play( # split the original and the copy
-                self.palDemo.animate.shift(UP),
-                palCopy.animate.shift(DOWN)
-            )
-            self.play( # invert the position of every letter of the copy
-                *[palCopy[i].animate.move_to(palCopy[len(palCopy)-1-i]) for i in range(len(palCopy))]
-            )
-            self.play( # re overlay the two copies to show they're identical
-                self.palDemo.animate.shift(DOWN),
-                palCopy.animate.shift(UP)
-            )
+            self.play(self.palDemo.animate.shift(UP), palCopy.animate.shift(DOWN)) # split the original and the copy
+            self.play(*[palCopy[i].animate.move_to(palCopy[len(palCopy)-1-i]) for i in range(len(palCopy))]) # invert the position of every letter of the copy
+            self.play(self.palDemo.animate.shift(DOWN), palCopy.animate.shift(UP)) # re-overlay the two copies to show they're identical
             self.play(FadeOut(palCopy), run_time=0.01) # kill the copy quick
         elif last: # if we're done, fade out the demo and unhighlight the last text
-            self.play(
-                FadeOut(self.palDemo),
-                self.unhighlight(getSelection(slice))
-            )
-        
+            self.play(FadeOut(self.palDemo), self.unhighlight(getSelection(slice)))
         self.wait(0.5)
-
-        return self.palDemo # return the demo so we can keep updating and passing it
         
