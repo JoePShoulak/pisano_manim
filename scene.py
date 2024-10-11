@@ -3,6 +3,7 @@ from templates import *
 
 class Fibonacci(Scene):
     def construct(self):
+        ### INTRO ###
         # Title and definition of the Fibonacci numbers
         title = Text("Fibonacci Numbers", font_size=89).to_edge(UP)
         subtitle = MathTex(r"f_{0} = 0, \ f_{1} = 1, \ f_{n}=f_{n-1}+f_{n-2}", font_size=55).next_to(title, DOWN)
@@ -10,6 +11,7 @@ class Fibonacci(Scene):
         self.play(Write(title))
         self.play(Write(subtitle))
 
+        ### FIBONACCI ###
         # Drawing the Fibonacci equations
         vals = [0,1,1]
         eqns = VGroup(MathTex(*r"{:.0f}  +  {:.0f}  =  {:.0f}".format(*vals).split("  ")))
@@ -21,11 +23,12 @@ class Fibonacci(Scene):
             eqns += eqn
         eqns.next_to(subtitle, DOWN)
         self.play(Write(eqns))
-        self.wait(1)
+        self.wait()
         
+        ### REDUCTION ###
         # Reducing the equations to the right hand side
-        self.play(*[Transform(eqn, eqn[4]) for eqn in eqns])
-        self.wait(1)
+        self.play(*[eqn.animate.become(eqn[4]) for eqn in eqns])
+        self.wait()
 
         # Aligning everything in one row with the numbers and elipsis
         eqns.insert(0, MathTex("1").next_to(eqns[0], LEFT))
@@ -36,18 +39,18 @@ class Fibonacci(Scene):
             AnimationGroup(eqns.animate.arrange(RIGHT).shift(UP), FadeOut(subtitle)),
             lag_ratio=0.5
         )
-        self.wait(1)
+        self.wait()
 
+        ### MODULUS ###
         # New definition at the top of the screen
         subtitle = Tex("A number modulus 10 is the one's digit", font_size=55).next_to(title, DOWN)
         self.play(Write(subtitle))
-        self.wait(1)
+        self.wait()
 
         # Create our modulus numbers
-        modEqns = VGroup(
-            *[MathTex(int(eqn.get_tex_string()) % 10).next_to(eqn, DOWN, buff=2) for eqn in eqns[:2]],
-            *[MathTex(int(eqn[4].get_tex_string()) % 10).next_to(eqn, DOWN, buff=2) for eqn in eqns[2:-1]]
-        )
+        print(type(eqns[0]))
+        print(type(eqns[5]))
+        modEqns = VGroup(*[MathTex(int((eqn if len(eqn) == 1 else eqn[4]).get_tex_string()) % 10).next_to(eqn, DOWN, buff=2) for eqn in eqns[:-1]])
         modEqns += MathTex(r"\ldots").next_to(modEqns[-1], RIGHT).align_to(eqns[-1], RIGHT)
 
         # Make an arrow with a label to be clear what we're doing
@@ -56,23 +59,23 @@ class Fibonacci(Scene):
 
         # Animate the taking of the modulus
         self.play(Write(modEqns[0]), Write(arrowGroup))
-        self.wait(1)
+        self.wait()
         for eqn in modEqns[1:-1]:
             self.play(
-                AnimationGroup(Write(eqn), run_time=1.0),
+                AnimationGroup(Write(eqn)),
                 AnimationGroup(arrow.animate.next_to(eqn, UP), run_time=0.33),
                 lag_ratio=0.5
             )
         self.play(Write(modEqns[-1]), FadeOut(arrowGroup))
-        self.wait(1)
+        self.wait()
 
         # Fade out the old numbers and shift these up; left shift is to be centered way later on
-        self.play(modEqns.animate.arrange(RIGHT).next_to(subtitle, DOWN).shift(LEFT*0.12590103), FadeOut(eqns))
-        self.wait(1)
+        self.play(modEqns.animate.arrange(RIGHT).next_to(subtitle, DOWN, buff=1).shift(LEFT*0.12590103), FadeOut(eqns))
+        self.wait()
 
-        # Prep for scene change
+        ### OUTRO ###
         self.play(Transform(title, Text("Pisano Arrays", font_size=89).to_edge(UP)), FadeOut(subtitle))
-        self.wait(1)
+        self.wait()
 
 class Pisano(Scene):
     def construct(self):
@@ -82,12 +85,12 @@ class Pisano(Scene):
         pisDef.set_color_by_tex("modulus", RED).set_color_by_tex("height", ORANGE)
 
         modEqns = VGroup(*[MathTex(n) for n in [0, 1, 1, 2, 3, 5, 8, 3, 1, 4, r"\ldots"]])
-        modEqns.arrange(RIGHT).next_to(pisDef, DOWN).shift(LEFT*0.12590103)
+        modEqns.arrange(RIGHT).next_to(pisDef, DOWN, buff=1).shift(LEFT*0.12590103)
 
         self.add(pisanoTitle)
         self.add(modEqns)
         self.play(Write(pisDef))
-        self.wait(1)
+        self.wait()
 
         # Replace the dots with the rest of the numbers extending offscreen
         self.play(modEqns.animate.shift(DOWN), FadeOut(modEqns[-1]))
@@ -99,7 +102,7 @@ class Pisano(Scene):
             modEqns.add(mob)
 
         self.play(Write(modEqns[10:]))
-        self.wait(1)
+        self.wait()
 
         # Begin building the grid!
         # First column
@@ -118,7 +121,7 @@ class Pisano(Scene):
                 gridAnim += [modEqns[i].animate.move_to(modEqns[i-4].get_center())]
             self.play(*gridAnim)
 
-        self.wait(1)
+        self.wait()
 
         # Draw the brackets and defining left hand side
         lBrack = MathTex("[").scale(6).next_to(modEqns, LEFT)
@@ -154,23 +157,23 @@ class Pisano(Scene):
 class TenFivePalindrome(TenFivePattern):
     def construct(self):
         super().construct()
-        self.wait(1)
+        self.wait()
 
         # Write summary
         summary = Tex("Down-Right Diagonals (below the top row) form ", "palindromes", font_size=34).next_to(self.title, DOWN, buff=0.75)
         summary.set_color_by_tex("palindromes", self.HIGHLIGHT)
         self.play(Write(summary)) 
-        self.wait(1)
+        self.wait()
 
         # Begin Demo
         self.palDemo = VGroup()
         for i in range(12):
             self.demo(i, first=i==0, last=i==11)
-        self.wait(1)
+        self.wait()
 
         # Cleanup
         self.play(FadeOut(summary))
-        self.wait(1)
+        self.wait()
 
     def demo(self, slice, first=False, last=False):
         def makeDemo(): # Make the 4 numbers we'll be moving around
