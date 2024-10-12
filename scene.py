@@ -181,8 +181,6 @@ class TenFiveDiagPalindrome(TenFivePattern):
             self.play(*[copy[i].animate.move_to(copy[len(copy)-1-i]) for i in range(len(copy))]) # invert the position of every letter of the copy
             self.play(self.demo.animate.shift(DOWN), copy.animate.shift(UP)) # re-overlay the two copies to show they're identical
             self.play(FadeOut(copy), run_time=0.01) # kill the copy quick
-        elif last: # if we're done, fade out the demo and unhighlight the last text
-            self.play(FadeOut(self.demo), self.unhighlight(getSelection(slice)))
         self.wait(0.5)
         
 class TenFiveDiagSum(TenFivePattern):
@@ -237,8 +235,6 @@ class TenFiveDiagSum(TenFivePattern):
 
         if first:
             self.wait()
-        elif last: # if we're done, fade out the demo and unhighlight the last text
-            self.play(FadeOut(self.demo), self.unhighlight(getSelection(slice)))
         self.wait(0.5)
         
 class TenFiveRightAngle(TenFivePattern):
@@ -260,6 +256,7 @@ class TenFiveRightAngle(TenFivePattern):
             demo[1].next_to(demo[0], UP)
             return demo.next_to(self.grid, RIGHT).to_edge(RIGHT, buff=3)
 
+        # This is kinda horrible, but it lets me arrange in grid how I want
         def getSelection(n): # Get those 4 mobs from the source grid
             return VGroup(
                 *[self.grid[(12+(1-i)+5*n) % 60] for i in range(2)],
@@ -271,7 +268,7 @@ class TenFiveRightAngle(TenFivePattern):
         if first:
             self.demo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
         else:
-            introAnims += [self.unhighlight(getSelection(slice-1)[i]) for i in [0, 1, 3,]] # otherwise, unhighlight the last selection
+            introAnims += [self.unhighlight(getSelection(slice-1)[i]) for i in [0, 1, 2]] # otherwise, unhighlight the last selection
         introAnims += [self.demo.animate.become(makeDemo())] # become the current selection
         self.play(*introAnims) # play all our intro animations
         if first:
@@ -282,8 +279,6 @@ class TenFiveRightAngle(TenFivePattern):
                 FadeOut(self.demo[-1], scale=0)
             )
             self.demo[-1].scale(0)
-        elif last: # if we're done, fade out the demo and unhighlight the last text
-            self.play(FadeOut(self.demo), self.unhighlight(getSelection(slice)))
         self.wait(0.5)
         
 class TenFiveFrequency(TenFivePattern):
