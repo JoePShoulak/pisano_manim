@@ -88,7 +88,7 @@ class Pisano(Scene):
         self.add(pisanoTitle)
         self.add(modEqns)
         self.play(Write(subtitle))
-        self.wait()
+        self.wait(2)
 
         ### PISANO SEQUENCE 10 ###
         # Remove the dots
@@ -156,16 +156,10 @@ class Pisano(Scene):
 
 class TenFiveDiagPalindrome(TenFivePattern):
     def construct(self):
-        ### INTRO ###
-        # Setup the scene and take a beat
         super().construct()
         self.writeSummary(Tex("Down-Right Diagonals (below the top row) form ", "palindromes", font_size=34).set_color_by_tex("palindromes", self.HIGHLIGHT))
-
-        ### DEMO ###
         for i in range(12):
             self.playDemo(i, first=i==0, last=i==11)
-
-        ### OUTRO ###
         self.cleanup()
 
     def playDemo(self, slice, first=False, last=False):
@@ -199,16 +193,10 @@ class TenFiveDiagPalindrome(TenFivePattern):
         
 class TenFiveDiagSum(TenFivePattern):
     def construct(self):
-        ### INTRO ###
-        # Setup the scene and take a beat
         super().construct()
         self.writeSummary(Tex("Down-Left Diagonals (below the top row) form ", "sums", " pointing inward", font_size=34).set_color_by_tex("sums", self.HIGHLIGHT))
-
-        ### DEMO ###
         for i in range(12):
             self.playDemo(i, first=i==0, last=i==11)
-
-        ### OUTRO ###
         self.cleanup()
 
     def playDemo(self, slice, first=False, last=False):
@@ -218,6 +206,9 @@ class TenFiveDiagSum(TenFivePattern):
                 return MathTex(a, "+", b, r"\Rightarrow", (a+b)%10, color=self.HIGHLIGHT)
             else:
                 return MathTex(a, "+", b, "=", a+b, color=self.HIGHLIGHT)
+
+        def getSelection(n): # Get those 4 mobs from the source grid
+            return VGroup(*[self.grid[(4+4*i+5*n) % 60] for i in range(4)])
                 
         def makeDemo(): # Make the 4 numbers we'll be moving around
             sel = [int(tex.get_tex_string()) for tex in getSelection(slice)]
@@ -229,9 +220,6 @@ class TenFiveDiagSum(TenFivePattern):
                 demo[1-k].align_to(demo[k], LEFT)
 
             return demo.add_updater(demoUpdater)
-
-        def getSelection(n): # Get those 4 mobs from the source grid
-            return VGroup(*[self.grid[(4+4*i+5*n) % 60] for i in range(4)])
         
         ### SETUP ###
         introAnims = [self.highlight(getSelection(slice))] # highlight the new set
@@ -265,16 +253,10 @@ class TenFiveDiagSum(TenFivePattern):
         
 class TenFiveRightAngle(TenFivePattern):
     def construct(self):
-        ### INTRO ###
-        # Setup the scene and take a beat
         super().construct()
         self.writeSummary(Tex("Right Angles at the bottom (\"pointing\" down-right) ", "repeat", font_size=34).set_color_by_tex("repeat", self.HIGHLIGHT))
-
-        ### DEMO ###
         for i in range(12):
             self.playDemo(i, first=i==0, last=i==11)
-
-        ### OUTRO ###
         self.cleanup()
 
     def playDemo(self, slice, first=False, last=False):
@@ -306,14 +288,15 @@ class TenFiveRightAngle(TenFivePattern):
 
         ### ANIMATIONS ###
         self.play(*introAnims) # play all our intro animations
-        self.wait(1 if first else 0.25)
-        miniGrid = VGroup(*self.demo[:-1])
-        self.play(
-            miniGrid.animate.arrange_in_grid(rows=2),
-            FadeOut(self.demo[-1], scale=0)
-        )
-        self.demo[-1].scale(0)
-        if last: # if we're done, fade out the demo and unhighlight the last text
+        if first:
+            self.wait()
+            miniGrid = VGroup(*self.demo[:-1])
+            self.play(
+                miniGrid.animate.arrange_in_grid(rows=2),
+                FadeOut(self.demo[-1], scale=0)
+            )
+            self.demo[-1].scale(0)
+        elif last: # if we're done, fade out the demo and unhighlight the last text
             self.play(FadeOut(self.demo), self.unhighlight(getSelection(slice)))
         self.wait(0.5)
         
