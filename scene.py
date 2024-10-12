@@ -3,7 +3,6 @@ from templates import *
 
 class Fibonacci(Scene):
     def construct(self):
-        ### INTRO ###
         # Title and definition of the Fibonacci numbers
         title = Text("Fibonacci Numbers", font_size=89).to_edge(UP)
         subtitle = MathTex(r"f_{0} = 0, \ f_{1} = 1, \ f_{n}=f_{n-1}+f_{n-2}", font_size=55)
@@ -12,7 +11,7 @@ class Fibonacci(Scene):
         self.play(Write(title))
         self.play(Write(subtitle))
 
-        ### FIBONACCI ###
+        self.next_section("FIBONACCI")
         # Drawing the Fibonacci equations
         vals = [0,1,1]
         eqns = VGroup(MathTex(*r"{:.0f}  +  {:.0f}  =  {:.0f}".format(*vals).split("  ")))
@@ -26,7 +25,7 @@ class Fibonacci(Scene):
         self.play(Write(eqns))
         self.wait()
         
-        ### REDUCTION ###
+        self.next_section("REDUCTION")
         # Reducing the equations to the right hand side
         self.play(*[eqn.animate.become(eqn[4]) for eqn in eqns])
         self.wait()
@@ -42,7 +41,7 @@ class Fibonacci(Scene):
         )
         self.wait()
 
-        ### MODULUS ###
+        self.next_section("MODULUS")
         # New definition at the top of the screen
         subtitle = Tex("A number modulus 10 is the one's digit", font_size=55).to_edge(UP, buff=2)
         self.play(Write(subtitle))
@@ -72,13 +71,12 @@ class Fibonacci(Scene):
         self.play(modEqns.animate.arrange(RIGHT).to_edge(UP, buff=3).shift(LEFT*0.12590103), FadeOut(eqns))
         self.wait()
 
-        ### OUTRO ###
+        self.next_section("OUTRO")
         self.play(Transform(title, Text("Pisano Arrays", font_size=89).to_edge(UP)), FadeOut(subtitle))
         self.wait()
 
 class Pisano(Scene):
     def construct(self):
-        ### INTRO ###
         # Recreate everything from the last scene
         pisanoTitle = Text("Pisano Arrays", font_size=89).to_edge(UP)
         subtitle = MathTex(r"\text{The Fibonacci numbers} \bmod_", "{10}", r" \text{ repeat every 60, so } \pi(", "10", ")=60", font_size=34)
@@ -90,7 +88,7 @@ class Pisano(Scene):
         self.play(Write(subtitle))
         self.wait(2)
 
-        ### PISANO SEQUENCE 10 ###
+        self.next_section("PISANO SEQUENCE 10")
         # Remove the dots
         dots = modEqns[-1]
         modEqns.remove(dots)
@@ -105,7 +103,7 @@ class Pisano(Scene):
         self.play(FadeOut(subtitle))
         self.wait()
 
-        ### P(10,5) DEFINITION ###
+        self.next_section("P(10,5) DEFINITION")
         # Throw up a new subtitile for the occasion
         subtitle = Tex("Pisano Arrays need a ", "modulus", " and a ", "height", font_size=55)
         subtitle.to_edge(UP, buff=2).set_color_by_tex("modulus", RED).set_color_by_tex("height", ORANGE)
@@ -142,7 +140,7 @@ class Pisano(Scene):
         self.play(lHDef.animate.become(lHDefNums))
         self.wait()
 
-        ### OUTRO ###
+        self.next_section("OUTRO")
         # Prep for scene change
         gridLabel = VGroup(lHDef[0], subtitle[1], lHDef[2], subtitle[3], lHDef[4])
         patternTitle = Text("Patterns", font_size=89).to_edge(UP)
@@ -171,7 +169,7 @@ class TenFiveDiagPalindrome(TenFivePattern):
         def getSelection(n): # Get those 4 mobs from the source grid
             return VGroup(*[self.grid[(1+6*i+5*n) % 60] for i in range(4)])
 
-        ### SETUP ###
+        ### ANIMATIONS ###
         introAnims = [self.highlight(getSelection(slice))] # highlight the new set
         copy = makeDemo() # make a copy ahead of time
         if first:
@@ -179,8 +177,6 @@ class TenFiveDiagPalindrome(TenFivePattern):
         else:
             introAnims += [self.unhighlight(getSelection(slice-1))] # otherwise, unhighlight the last selection
         introAnims += [self.demo.animate.become(makeDemo())] # become the current selection
-
-        ### ANIMATIONS ###
         self.play(*introAnims) # play all our intro animations
         if first: # only demo the first reversal
             self.play(self.demo.animate.shift(UP), copy.animate.shift(DOWN)) # split the original and the copy
@@ -194,25 +190,25 @@ class TenFiveDiagPalindrome(TenFivePattern):
 class TenFiveDiagSum(TenFivePattern):
     def construct(self):
         super().construct()
-        self.writeSummary(Tex("Down-Left Diagonals (below the top row) form ", "sums", " pointing inward", font_size=34).set_color_by_tex("sums", self.HIGHLIGHT))
+        s = Tex("Down-Left Diagonals (below the top row) form ", "sums", " pointing inward", font_size=34)
+        s[1].set_color_by_gradient(self.HIGHLIGHT, RED)
+        self.writeSummary(s)
         for i in range(12):
             self.playDemo(i, first=i==0, last=i==11)
         self.cleanup()
 
     def playDemo(self, slice, first=False, last=False):
         ### HELPERS ###
-        def makeEquation(a, b, mod=False):
-            if mod:
-                return MathTex(a, "+", b, r"\Rightarrow", (a+b)%10, color=self.HIGHLIGHT)
-            else:
-                return MathTex(a, "+", b, "=", a+b, color=self.HIGHLIGHT)
+        def makeEquation(a, b, mod=False, startColor=self.HIGHLIGHT):
+            [eq, sum] = ["=", a+b] if not mod else [r"\Rightarrow", (a+b)%10]
+            return MathTex(a, "+", b, eq, sum).set_color_by_gradient(startColor, ORANGE)
 
         def getSelection(n): # Get those 4 mobs from the source grid
             return VGroup(*[self.grid[(4+4*i+5*n) % 60] for i in range(4)])
                 
         def makeDemo(): # Make the 4 numbers we'll be moving around
             sel = [int(tex.get_tex_string()) for tex in getSelection(slice)]
-            demo = VGroup(makeEquation(sel[3], sel[2]), makeEquation(sel[0], sel[1]))
+            demo = VGroup(makeEquation(sel[3], sel[2], startColor=RED), makeEquation(sel[0], sel[1]))
             demo.scale(2).arrange(DOWN).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
 
             def demoUpdater(demo):
@@ -221,20 +217,18 @@ class TenFiveDiagSum(TenFivePattern):
 
             return demo.add_updater(demoUpdater)
         
-        ### SETUP ###
-        introAnims = [self.highlight(getSelection(slice))] # highlight the new set
+        ### ANIMATIONS ###
+        introAnims = [getSelection(slice).animate.set_color_by_gradient(self.HIGHLIGHT, RED)] # highlight the new set
         if first:
             self.demo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
         else:
             introAnims += [self.unhighlight(getSelection(slice-1))] # otherwise, unhighlight the last selection
         introAnims += [self.demo.animate.become(makeDemo())] # become the current selection
-        
-        ### ANIMATIONS ###
         self.play(*introAnims) # play all our intro animations
         sel = [int(tex.get_tex_string()) for tex in getSelection(slice)]
         reduceAnim = []
         if sel[3]+sel[2] >= 10:
-            newEq = makeEquation(sel[3], sel[2], mod=True)
+            newEq = makeEquation(sel[3], sel[2], mod=True, startColor=RED)
             newEq.scale(2).move_to(self.demo[0].get_center()).align_to(self.demo[0], LEFT)
             reduceAnim.append(self.demo[0].animate.become(newEq))
         if sel[0]+sel[1] >= 10:
@@ -249,7 +243,7 @@ class TenFiveDiagSum(TenFivePattern):
             self.wait()
         elif last: # if we're done, fade out the demo and unhighlight the last text
             self.play(FadeOut(self.demo), self.unhighlight(getSelection(slice)))
-        self.wait()
+        self.wait(0.5)
         
 class TenFiveRightAngle(TenFivePattern):
     def construct(self):
@@ -278,15 +272,13 @@ class TenFiveRightAngle(TenFivePattern):
                 self.grid[(14+5*n) % 60]
             )
         
-        ### SETUP ###
+        ### ANIMATIONS ###
         introAnims = [self.highlight(getSelection(slice)[:-1])] # highlight the new set
         if first:
             self.demo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
         else:
             introAnims += [self.unhighlight(getSelection(slice-1)[i]) for i in [0, 1, 3,]] # otherwise, unhighlight the last selection
         introAnims += [self.demo.animate.become(makeDemo())] # become the current selection
-
-        ### ANIMATIONS ###
         self.play(*introAnims) # play all our intro animations
         if first:
             self.wait()
