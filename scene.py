@@ -157,10 +157,10 @@ class TenFiveDiagPalindrome(TenFivePattern):
         super().construct()
         self.writeSummary(Tex("Down-Right Diagonals (below the top row) form ", "palindromes", font_size=34).set_color_by_tex("palindromes", self.HIGHLIGHT))
         for i in range(12):
-            self.playDemo(i, first=i==0, last=i==11)
+            self.playDemo(i, first=i==0)
         self.cleanup()
 
-    def playDemo(self, slice, first=False, last=False):
+    def playDemo(self, slice, first=False):
         def makeDemo(): # Make the 4 numbers we'll be moving around
             demo = VGroup(*[Tex(eqn.get_tex_string(), color=self.HIGHLIGHT) for eqn in getSelection(slice)])
             return demo.scale(2).arrange(RIGHT, buff=1.0).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
@@ -190,10 +190,10 @@ class TenFiveDiagSum(TenFivePattern):
         s[1].set_color_by_gradient(self.HIGHLIGHT, RED)
         self.writeSummary(s)
         for i in range(12):
-            self.playDemo(i, first=i==0, last=i==11)
+            self.playDemo(i, first=i==0)
         self.cleanup()
 
-    def playDemo(self, slice, first=False, last=False):
+    def playDemo(self, slice, first=False):
         def makeEquation(a, b, mod=False, startColor=self.HIGHLIGHT):
             [eq, sum] = ["=", a+b] if not mod else [r"\Rightarrow", (a+b)%10]
             return MathTex(a, "+", b, eq, sum).set_color_by_gradient(startColor, ORANGE)
@@ -242,10 +242,10 @@ class TenFiveRightAngle(TenFivePattern):
         super().construct()
         self.writeSummary(Tex("Right Angles at the bottom (\"pointing\" down-right) ", "repeat", font_size=34).set_color_by_tex("repeat", self.HIGHLIGHT))
         for i in range(12):
-            self.playDemo(i, first=i==0, last=i==11)
+            self.playDemo(i, first=i==0)
         self.cleanup()
 
-    def playDemo(self, slice, first=False, last=False):
+    def playDemo(self, slice, first=False):
         def makeDemo(): # Make the 4 numbers we'll be moving around
             demo = VGroup(*getSelection(slice)).copy().scale(2/1.5)
             for d in demo[:-1]:
@@ -285,20 +285,31 @@ class TenFiveFrequency(TenFivePattern):
     def construct(self):
         super().construct()
         self.writeSummary(Tex("Numbers of the same parity have the same ", "frequency", font_size=34).set_color_by_tex("frequency", self.HIGHLIGHT))
-        # for i in range(12):
-        #     self.playDemo(i, first=i==0, last=i==11)
-        self.playDemo(0, first=True)
+        self.playDemo(0)
+        self.playDemo(1)
         self.cleanup()
 
-    def playDemo(self, slice, first=False, last=False):
+    def playDemo(self, slice, first=False):
         def getSelection(n): # Get those 4 mobs from the source grid
             return VGroup(*list(filter(lambda t : int(t.get_tex_string()) == n, self.grid)))
         
-        freqs = []
+        def makeDemo():
+            demo = VGroup(*[Tex(f"\# of {slice+2*i}s: {len(getSelection(slice+2*i))}", color=self.HIGHLIGHT) for i in range(5)])
+            return demo.scale(1.25).arrange(DOWN).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=3)
+
+        if len(self.demo) > 0:
+            self.play(FadeOut(self.demo))
+            self.wait(0.5)
+
+        self.demo = makeDemo()
+        color = RED if slice else ORANGE
+
         for i in range(6):
             if i > 0:
-                self.play(self.highlight(getSelection(slice+2*(i-1)), ORANGE))
-            if i <= 5:
+                self.play(self.highlight(self.demo[i-1], color))
+                self.play(self.highlight(getSelection(slice+2*(i-1)), color))
+            if i < 5:
+                self.play(Write(self.demo[i]))
                 self.play(self.highlight(getSelection(slice+2*i)))
             self.wait(0.5)
         self.wait(0.5)
