@@ -11,7 +11,7 @@ class Fibonacci(Scene):
         self.play(Write(title))
         self.play(Write(subtitle))
 
-        self.next_section("FIBONACCI")
+        self.next_section("EQUATIONS")
         # Drawing the Fibonacci equations
         vals = [0,1,1]
         eqns = VGroup(MathTex(*r"{:.0f}  +  {:.0f}  =  {:.0f}".format(*vals).split("  ")))
@@ -161,7 +161,6 @@ class TenFiveDiagPalindrome(TenFivePattern):
         self.cleanup()
 
     def playDemo(self, slice, first=False, last=False):
-        ### HELPERS ###
         def makeDemo(): # Make the 4 numbers we'll be moving around
             demo = VGroup(*[Tex(eqn.get_tex_string(), color=self.HIGHLIGHT) for eqn in getSelection(slice)])
             return demo.scale(2).arrange(RIGHT, buff=1.0).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
@@ -169,7 +168,6 @@ class TenFiveDiagPalindrome(TenFivePattern):
         def getSelection(n): # Get those 4 mobs from the source grid
             return VGroup(*[self.grid[(1+6*i+5*n) % 60] for i in range(4)])
 
-        ### ANIMATIONS ###
         introAnims = [self.highlight(getSelection(slice))] # highlight the new set
         copy = makeDemo() # make a copy ahead of time
         if first:
@@ -198,7 +196,6 @@ class TenFiveDiagSum(TenFivePattern):
         self.cleanup()
 
     def playDemo(self, slice, first=False, last=False):
-        ### HELPERS ###
         def makeEquation(a, b, mod=False, startColor=self.HIGHLIGHT):
             [eq, sum] = ["=", a+b] if not mod else [r"\Rightarrow", (a+b)%10]
             return MathTex(a, "+", b, eq, sum).set_color_by_gradient(startColor, ORANGE)
@@ -217,7 +214,6 @@ class TenFiveDiagSum(TenFivePattern):
 
             return demo.add_updater(demoUpdater)
         
-        ### ANIMATIONS ###
         introAnims = [getSelection(slice).animate.set_color_by_gradient(self.HIGHLIGHT, RED)] # highlight the new set
         if first:
             self.demo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
@@ -249,13 +245,11 @@ class TenFiveRightAngle(TenFivePattern):
     def construct(self):
         super().construct()
         self.writeSummary(Tex("Right Angles at the bottom (\"pointing\" down-right) ", "repeat", font_size=34).set_color_by_tex("repeat", self.HIGHLIGHT))
-        # for i in range(12):
-        #     self.playDemo(i, first=i==0, last=i==11)
-        self.playDemo(0, first=True)
-        # self.cleanup()
+        for i in range(12):
+            self.playDemo(i, first=i==0, last=i==11)
+        self.cleanup()
 
     def playDemo(self, slice, first=False, last=False):
-        ### HELPERS ###
         def makeDemo(): # Make the 4 numbers we'll be moving around
             demo = VGroup(*getSelection(slice)).copy().scale(2/1.5)
             for d in demo[:-1]:
@@ -273,7 +267,6 @@ class TenFiveRightAngle(TenFivePattern):
                 self.grid[(14+5*n) % 60]
             )
         
-        ### ANIMATIONS ###
         introAnims = [self.highlight(getSelection(slice)[:-1])] # highlight the new set
         if first:
             self.demo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
