@@ -194,16 +194,14 @@ class TenFiveDiagSum(TenFivePattern):
         self.cleanup()
 
     def playDemo(self, index):
-        def makeEquation(a, b, mod=False, startColor=self.HIGHLIGHT):
-            [eq, sum] = ["=", a+b] if not mod else [r"\Rightarrow", (a+b)%10]
-            return MathTex(a, "+", b, eq, sum).set_color_by_gradient(startColor, ORANGE)
-
         def getSelection(n):
             return self.getSelection(4, 4, 4, n)
                 
         def makeDemo():
             sel = [int(tex.get_tex_string()) for tex in getSelection(index)]
-            demo = VGroup(makeEquation(sel[3], sel[2], startColor=RED), makeEquation(sel[0], sel[1]))
+            demo = VGroup(
+                self.makeEquation(sel[3], sel[2]).set_color_by_gradient(RED, ORANGE),
+                self.makeEquation(sel[0], sel[1]).set_color_by_gradient(self.HIGHLIGHT, ORANGE))
             demo.scale(2).arrange(DOWN).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
 
             def demoUpdater(demo):
@@ -213,7 +211,7 @@ class TenFiveDiagSum(TenFivePattern):
             return demo.add_updater(demoUpdater)
         
         def reducedAnim(n1, n2, i, color=self.HIGHLIGHT):
-            newEq = makeEquation(n1, n2, mod=True, startColor=color)
+            newEq = self.makeEquation(n1, n2, mod=True).set_color_by_gradient(color, ORANGE)
             newEq.scale(2).move_to(self.demo[i].get_center()).align_to(self.demo[i], LEFT)
             return self.demo[i].animate.become(newEq)
         
@@ -376,16 +374,12 @@ class TenFiveRowSum(TenFivePattern):
         self.cleanup()
 
     def playDemo(self, index):
-        def makeEquation(a, b, mod=False):
-            [eq, sum] = ["=", a+b] if not mod else [r"\Rightarrow", (a+b)%10]
-            return MathTex(a, "+", b, eq, sum).set_color(self.HIGHLIGHT)
-
         def getSelection(n):
             return self.getSelection(1, 5, 3, n)
                 
         def makeDemo(mod=False): 
             sel = [int(tex.get_tex_string()) for tex in getSelection(index)]
-            return makeEquation(sel[0], sel[1], mod).scale(2).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
+            return self.makeEquation(sel[0], sel[1], mod).scale(2).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
 
         first = not self.demo
         
@@ -473,15 +467,15 @@ class TenFiveTopRow(TenFivePattern):
 class M2Palindromes(PisanoScene):
     def construct(self):
         def demo(m):
-            arr = self.makeGrid(m, 2).scale(1.25).center()
-            lbl = self.makeGridLabel(m, 2)
-
             if not self.grid:
-                self.grid = arr
-                self.label = lbl
+                self.grid = self.makeGrid(m, 2).scale(1.25).center()
+                self.label = self.makeGridLabel(m, 2)
                 self.play(Write(self.grid), Write(self.label))
             else:
-                self.play(Transform(self.grid, arr), Transform(self.label, lbl))
+                self.play(Transform(self.grid, self.makeGrid(m, 2).scale(1.25).center()), Transform(self.label, self.makeGridLabel(m, 2)))
+                self.remove(self.grid)
+                self.grid = self.makeGrid(m, 2).scale(1.25).center()
+                self.add(self.grid)
             self.wait()
 
             rows = [VGroup(*[i for i in self.grid[j::2]]) for j in range(2)]
