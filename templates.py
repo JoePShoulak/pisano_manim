@@ -17,10 +17,13 @@ class PisanoScene(Scene):
         return grid.arrange_in_grid(rows=h, flow_order="dr")
     
     def makeGridLabel(self, m, h):
-        label = MathTex("P(", "10", ",", "5", ")")
-        label.set_color_by_tex("10", RED).set_color_by_tex("5", ORANGE)
+        m, h = str(m), str(h)
+
+        label = MathTex("P(", m, ",", h, ")")
+        label.set_color_by_tex(m, RED).set_color_by_tex(h, ORANGE)
         return label.scale(1.875).to_edge(UL)
     
+    # TODO: Allow highlighting as well
     def palindromeAnim(self, mobjDict = {"mobj": VGroup()}):
         if type(mobjDict) == dict:
             mobjDict = [mobjDict]

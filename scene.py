@@ -489,9 +489,17 @@ class M2Palindromes(PisanoScene):
             self.palindromeAnim(palindromes)
             self.wait()
 
-        self.play(Write(Text("Patterns", font_size=89).to_edge(UP)))
+        title = Text("Patterns", font_size=89).to_edge(UP)
+        subtitle = Tex("Just so many ", "palindromes", font_size=55).to_edge(UP, buff=2)
+        subtitle[1].set_color_by_gradient(self.HIGHLIGHT, RED)
+        self.play(Write(title))
+        self.play(Write(subtitle))
 
-        self.grid = VGroup()
+        self.grid, self.label = VGroup(), VGroup()
+
         for m in range(3, 10):
             demo(m)
+        self.wait()
+
+        self.play(FadeOut(self.grid), FadeOut(self.label), FadeOut(title))
         self.wait()
