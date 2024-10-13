@@ -298,19 +298,18 @@ class TenFiveFrequency(TenFivePattern):
     def construct(self):
         super().construct()
         self.writeSummary(Tex("Numbers of the same parity have the same ", "frequency", font_size=34).set_color_by_tex("frequency", self.HIGHLIGHT))
-        self.playDemo(0)
-        self.playDemo(1)
+        self.playDemo(i for i in range)
         self.cleanup()
 
-    def playDemo(self, slice, first=False):
-        def getSelection(n): # Get those 4 mobs from the source grid
+    def playDemo(self, slice):
+        def getSelection(n):
             return VGroup(*list(filter(lambda t : int(t.get_tex_string()) == n, self.grid)))
         
         def makeDemo():
             demo = VGroup(*[Tex(f"\# of {slice+2*i}s: {len(getSelection(slice+2*i))}", color=self.HIGHLIGHT) for i in range(5)])
             return demo.scale(1.25).arrange(DOWN).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=3)
 
-        if len(self.demo) > 0:
+        if len(self.demo) > 0: # TODO: Try this trick in more places
             self.play(FadeOut(self.demo))
             self.wait(0.5)
 
@@ -500,7 +499,7 @@ class M2Palindromes(Scene):
                 self.play(Write(self.grid), Write(self.label))
             else:
                 self.play(Transform(self.grid, pisanoArray(m, 2)), Transform(self.label, makeLabel(m, 2)))
-                self.grid = pisanoArray(m,2) # FIXME
+                self.grid = pisanoArray(m, 2) # FIXME
             self.wait()
 
             rows = [VGroup(*[i for i in self.grid[j::2]]) for j in range(2)]

@@ -8,6 +8,8 @@ def pisanoSequence(m):
 
 HIGHLIGHT = YELLOW_D
 
+# TODO: Make a custom class for all scenes to inherit from; we have enough helpers to merit it
+
 class TenFivePattern(Scene):
     def construct(self):
         self.HIGHLIGHT = HIGHLIGHT
@@ -42,7 +44,7 @@ class TenFivePattern(Scene):
         return mob.animate.set_color(color)
 
     def unhighlight(self, mob):
-        return mob.animate.set_color(WHITE)
+        return self.highlight(mob, color=WHITE)
     
     def cleanup(self):
         self.play(FadeOut(self.summary), FadeOut(self.demo), self.unhighlight(self.grid))
