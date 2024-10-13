@@ -1,14 +1,17 @@
 from manim import *
 from templates import *
 
-def palindromeDemo(scene, mobj, dir=DOWN, sym=False):
+def palindromeAnim(scene, mobj, dir=DOWN, sym=False):
     copy = mobj.copy()
 
     firstAnim = [copy.animate.shift(dir)]
     if sym: firstAnim += [mobj.animate.shift(-dir)]
     scene.play(*firstAnim)
 
-    scene.play(*[copy[i].animate.move_to(copy[len(copy)-1-i]) for i in range(len(copy))])
+    scene.play(*[
+        copy[i].animate.move_to(copy[len(copy)-1-i])
+        for i in range(len(copy))
+    ])
     
     lastAnim = [copy.animate.shift(-dir)]
     if sym: lastAnim += [mobj.animate.shift(dir)]
@@ -174,26 +177,28 @@ class TenFiveDiagPalindrome(TenFivePattern):
         super().construct()
         self.writeSummary(Tex("Down-Right Diagonals (below the top row) form ", "palindromes", font_size=34).set_color_by_tex("palindromes", self.HIGHLIGHT))
         for i in range(12):
-            self.playDemo(i, first=i==0)
+            self.playDemo(i)
         self.cleanup()
 
-    def playDemo(self, slice, first=False):
+    def playDemo(self, index):
         def makeDemo(): # Make the 4 numbers we'll be moving around
-            demo = VGroup(*[Tex(eqn.get_tex_string(), color=self.HIGHLIGHT) for eqn in getSelection(slice)])
+            demo = VGroup(*[Tex(eqn.get_tex_string(), color=self.HIGHLIGHT) for eqn in getSelection(index)])
             return demo.scale(2).arrange(RIGHT, buff=1.0).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
 
-        def getSelection(n): # Get those 4 mobs from the source grid
+        def getSelection(n):
             return VGroup(*[self.grid[(1+6*i+5*n) % 60] for i in range(4)])
+        
+        first = not self.demo
 
-        introAnims = [self.highlight(getSelection(slice))] # highlight the new set
+        introAnims = [self.highlight(getSelection(index))] # highlight the new set
         if first:
             self.demo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
         else:
-            introAnims += [self.unhighlight(getSelection(slice-1))] # otherwise, unhighlight the last selection
+            introAnims += [self.unhighlight(getSelection(index-1))] # otherwise, unhighlight the last selection
         introAnims += [self.demo.animate.become(makeDemo())] # become the current selection
         self.play(*introAnims) # play all our intro animations
         if first: # only demo the first reversal
-            palindromeDemo(self, self.demo, sym=True)
+            palindromeAnim(self, self.demo, sym=True)
         self.wait(0.5)
         
 class TenFiveDiagSum(TenFivePattern):
@@ -203,19 +208,19 @@ class TenFiveDiagSum(TenFivePattern):
         s[1].set_color_by_gradient(self.HIGHLIGHT, RED)
         self.writeSummary(s)
         for i in range(12):
-            self.playDemo(i, first=i==0)
+            self.playDemo(i)
         self.cleanup()
 
-    def playDemo(self, slice, first=False):
+    def playDemo(self, index):
         def makeEquation(a, b, mod=False, startColor=self.HIGHLIGHT):
             [eq, sum] = ["=", a+b] if not mod else [r"\Rightarrow", (a+b)%10]
             return MathTex(a, "+", b, eq, sum).set_color_by_gradient(startColor, ORANGE)
 
-        def getSelection(n): # Get those 4 mobs from the source grid
+        def getSelection(n):
             return VGroup(*[self.grid[(4+4*i+5*n) % 60] for i in range(4)])
                 
         def makeDemo(): # Make the 4 numbers we'll be moving around
-            sel = [int(tex.get_tex_string()) for tex in getSelection(slice)]
+            sel = [int(tex.get_tex_string()) for tex in getSelection(index)]
             demo = VGroup(makeEquation(sel[3], sel[2], startColor=RED), makeEquation(sel[0], sel[1]))
             demo.scale(2).arrange(DOWN).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
 
@@ -225,27 +230,29 @@ class TenFiveDiagSum(TenFivePattern):
 
             return demo.add_updater(demoUpdater)
         
-        introAnims = [getSelection(slice).animate.set_color_by_gradient(self.HIGHLIGHT, RED)] # highlight the new set
+        def reducedAnim(n1, n2, i, color=self.HIGHLIGHT):
+            newEq = makeEquation(n1, n2, mod=True, startColor=color)
+            newEq.scale(2).move_to(self.demo[i].get_center()).align_to(self.demo[i], LEFT)
+            return self.demo[i].animate.become(newEq)
+        
+        first = not self.demo
+
+        introAnims = [getSelection(index).animate.set_color_by_gradient(self.HIGHLIGHT, RED)] # highlight the new set
         if first:
             self.demo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
         else:
-            introAnims += [self.unhighlight(getSelection(slice-1))] # otherwise, unhighlight the last selection
+            introAnims += [self.unhighlight(getSelection(index-1))] # otherwise, unhighlight the last selection
         introAnims += [self.demo.animate.become(makeDemo())] # become the current selection
         self.play(*introAnims) # play all our intro animations
-        sel = [int(tex.get_tex_string()) for tex in getSelection(slice)]
-        reduceAnim = []
+        sel = [int(tex.get_tex_string()) for tex in getSelection(index)]
+        reduceAnims = []
         if sel[3]+sel[2] >= 10:
-            newEq = makeEquation(sel[3], sel[2], mod=True, startColor=RED)
-            newEq.scale(2).move_to(self.demo[0].get_center()).align_to(self.demo[0], LEFT)
-            reduceAnim.append(self.demo[0].animate.become(newEq))
+            reduceAnims.append(reducedAnim(sel[3], sel[2], 0, RED))
         if sel[0]+sel[1] >= 10:
-            newEq = makeEquation(sel[0], sel[1], mod=True)
-            newEq.scale(2).move_to(self.demo[1].get_center()).align_to(self.demo[1], LEFT)
-            reduceAnim.append(self.demo[1].animate.become(newEq))
-        if reduceAnim:
+            reduceAnims.append(reducedAnim(sel[0], sel[1], 1))
+        if reduceAnims:
             self.wait(0.5)
-            self.play(*reduceAnim)
-
+            self.play(*reduceAnims)
         if first:
             self.wait()
         self.wait(0.5)
@@ -255,12 +262,12 @@ class TenFiveRightAngle(TenFivePattern):
         super().construct()
         self.writeSummary(Tex("Right Angles at the bottom (\"pointing\" down-right) ", "repeat", font_size=34).set_color_by_tex("repeat", self.HIGHLIGHT))
         for i in range(12):
-            self.playDemo(i, first=i==0)
+            self.playDemo(i)
         self.cleanup()
 
-    def playDemo(self, slice, first=False):
-        def makeDemo(): # Make the 4 numbers we'll be moving around
-            demo = VGroup(*getSelection(slice)).copy().scale(2/1.5)
+    def playDemo(self, index):
+        def makeDemo():
+            demo = VGroup(*getSelection(index)).copy().scale(2/1.5)
             for d in demo[:-1]:
                 d.color = self.HIGHLIGHT
             demo[3].next_to(demo[2], RIGHT)
@@ -270,18 +277,20 @@ class TenFiveRightAngle(TenFivePattern):
             return demo.next_to(self.grid, RIGHT).to_edge(RIGHT, buff=3)
 
         # This is kinda horrible, but it lets me arrange in grid how I want
-        def getSelection(n): # Get those 4 mobs from the source grid
+        def getSelection(n):
             return VGroup(
                 *[self.grid[(12+(1-i)+5*n) % 60] for i in range(2)],
                 *[self.grid[(4+5*i+5*n) % 60] for i in range(2)],
                 self.grid[(14+5*n) % 60]
             )
         
-        introAnims = [self.highlight(getSelection(slice)[:-1])] # highlight the new set
+        first = not self.demo
+        
+        introAnims = [self.highlight(getSelection(index)[:-1])] # highlight the new set
         if first:
             self.demo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
         else:
-            introAnims += [self.unhighlight(getSelection(slice-1)[i]) for i in [0, 1, 2]] # otherwise, unhighlight the last selection
+            introAnims += [self.unhighlight(getSelection(index-1)[i]) for i in [0, 1, 2]] # otherwise, unhighlight the last selection
         introAnims += [self.demo.animate.become(makeDemo())] # become the current selection
         self.play(*introAnims) # play all our intro animations
         if first:
@@ -298,30 +307,33 @@ class TenFiveFrequency(TenFivePattern):
     def construct(self):
         super().construct()
         self.writeSummary(Tex("Numbers of the same parity have the same ", "frequency", font_size=34).set_color_by_tex("frequency", self.HIGHLIGHT))
-        self.playDemo(i for i in range)
+        for i in range(2):
+            self.playDemo(i)
         self.cleanup()
 
-    def playDemo(self, slice):
+    def playDemo(self, index):
         def getSelection(n):
             return VGroup(*list(filter(lambda t : int(t.get_tex_string()) == n, self.grid)))
         
         def makeDemo():
-            demo = VGroup(*[Tex(f"\# of {slice+2*i}s: {len(getSelection(slice+2*i))}", color=self.HIGHLIGHT) for i in range(5)])
+            demo = VGroup(*[Tex(f"\# of {index+2*i}s: {len(getSelection(index+2*i))}", color=self.HIGHLIGHT) for i in range(5)])
             return demo.scale(1.25).arrange(DOWN).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=3)
 
-        if len(self.demo) > 0: # TODO: Try this trick in more places
+        if self.demo:
             self.play(FadeOut(self.demo))
             self.wait(0.5)
 
         self.demo = makeDemo()
-        color = RED if slice else ORANGE
+        color = RED if index else ORANGE
 
         for i in range(6):
             if i > 0:
-                self.play(self.highlight(self.demo[i-1], color))
-                self.play(self.highlight(getSelection(slice+2*(i-1)), color))
+                self.play(
+                    self.highlight(self.demo[i-1], color),
+                    self.highlight(getSelection(index+2*(i-1)), color)
+                )
             if i < 5:
-                self.play(Write(self.demo[i]), self.highlight(getSelection(slice+2*i)))
+                self.play(Write(self.demo[i]), self.highlight(getSelection(index+2*i)))
             self.wait(0.5)
         self.wait(0.5)
 
@@ -378,29 +390,31 @@ class TenFiveRowSum(TenFivePattern):
         super().construct()
         self.writeSummary(Tex("Rows also have a pattern with ", "sums", font_size=55).set_color_by_tex("sums", self.HIGHLIGHT))
         for i in range(12):
-            self.playDemo(i, first=i==0)
+            self.playDemo(i)
         self.cleanup()
 
-    def playDemo(self, slice, first=False):
+    def playDemo(self, index):
         def makeEquation(a, b, mod=False):
             [eq, sum] = ["=", a+b] if not mod else [r"\Rightarrow", (a+b)%10]
             return MathTex(a, "+", b, eq, sum).set_color(self.HIGHLIGHT)
 
-        def getSelection(n): # Get those 4 mobs from the source grid
+        def getSelection(n):
             return VGroup(*[self.grid[(1+5*i+5*n) % 60] for i in range(3)])
                 
         def makeDemo(mod=False): 
-            sel = [int(tex.get_tex_string()) for tex in getSelection(slice)]
+            sel = [int(tex.get_tex_string()) for tex in getSelection(index)]
             return makeEquation(sel[0], sel[1], mod).scale(2).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
+
+        first = not self.demo
         
-        introAnims = [getSelection(slice).animate.set_color(self.HIGHLIGHT)] # highlight the new set
+        introAnims = [getSelection(index).animate.set_color(self.HIGHLIGHT)] # highlight the new set
         if first:
             self.demo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
         else:
-            introAnims += [self.unhighlight(getSelection(slice-1)[0])] # otherwise, unhighlight the last selection
+            introAnims += [self.unhighlight(getSelection(index-1)[0])] # otherwise, unhighlight the last selection
         introAnims += [self.demo.animate.become(makeDemo())] # become the current selection
         self.play(*introAnims) # play all our intro animations
-        sel = [int(tex.get_tex_string()) for tex in getSelection(slice)]
+        sel = [int(tex.get_tex_string()) for tex in getSelection(index)]
         if sel[0] + sel[1] >= 10:
             self.play(self.demo.animate.become(makeDemo(True).align_to(self.demo, LEFT)))
         if first:
@@ -492,8 +506,8 @@ class M2Palindromes(Scene):
             label[3].set_color(ORANGE)
             return label.scale(1.875).to_edge(UL)
         
-        def demo(m, first=False):
-            if first:
+        def demo(m):
+            if not self.grid:
                 self.label = makeLabel(m, 2)
                 self.grid = pisanoArray(m, 2)
                 self.play(Write(self.grid), Write(self.label))
@@ -503,11 +517,12 @@ class M2Palindromes(Scene):
             self.wait()
 
             rows = [VGroup(*[i for i in self.grid[j::2]]) for j in range(2)]
-            palindromeDemo(self, rows[1])
+            palindromeAnim(self, rows[1])
             self.wait()
 
         self.play(Write(Text("Patterns", font_size=89).to_edge(UP)))
 
+        self.grid = VGroup()
         for m in range(3, 10):
-            demo(m, first=m==3)
+            demo(m)
         self.wait()
