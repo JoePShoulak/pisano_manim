@@ -21,23 +21,33 @@ class PisanoScene(Scene):
         label.set_color_by_tex("10", RED).set_color_by_tex("5", ORANGE)
         return label.scale(1.875).to_edge(UL)
     
-    def palindromeAnim(self, mobj, dir=DOWN, sym=False):
-        copy = mobj.copy()
+    def palindromeAnim(self, mobjDict = {"mobj": VGroup()}):
+        if type(mobjDict) == dict:
+            mobjDict = [mobjDict]
 
-        firstAnim = [copy.animate.shift(dir)]
-        if sym: firstAnim += [mobj.animate.shift(-dir)]
-        self.play(*firstAnim)
+        shiftAwayAnim = []
+        for mobjItem in mobjDict:
+            mobjItem["copy"] = mobjItem["mobj"].copy()
+            shiftAwayAnim += [mobjItem["copy"].animate.shift(mobjItem.get("dir", DOWN))]
+            if mobjItem.get("sym", False): shiftAwayAnim += [mobjItem["mobj"].animate.shift(-mobjItem.get("dir", DOWN))]
+        self.play(*shiftAwayAnim)
 
-        self.play(*[
-            copy[i].animate.move_to(copy[len(copy)-1-i])
-            for i in range(len(copy))
-        ])
-        
-        lastAnim = [copy.animate.shift(-dir)]
-        if sym: lastAnim += [mobj.animate.shift(dir)]
-        self.play(*lastAnim)
+        reverseAnim = []
+        for mobjItem in mobjDict:
+            reverseAnim += [
+                mobjItem["copy"][i].animate.move_to(mobjItem["copy"][len(mobjItem["copy"])-1-i])
+                for i in range(len(mobjItem["copy"]))
+            ]
+        self.play(*reverseAnim)
 
-        self.remove(copy)
+        shiftBackAnim = []
+        for mobjItem in mobjDict:
+            shiftBackAnim += [mobjItem["copy"].animate.shift(-mobjItem.get("dir", DOWN))]
+            if mobjItem.get("sym", False): shiftBackAnim += [mobjItem["mobj"].animate.shift(mobjItem.get("dir", DOWN))]
+        self.play(*shiftBackAnim)
+
+        for mobjItem in mobjDict:
+            self.remove(mobjItem["copy"])
 
 class TenFivePattern(PisanoScene):
     def construct(self):

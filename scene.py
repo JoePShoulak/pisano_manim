@@ -180,7 +180,7 @@ class TenFiveDiagPalindrome(TenFivePattern):
         introAnims += [self.demo.animate.become(makeDemo())] # become the current selection
         self.play(*introAnims) # play all our intro animations
         if first: # only demo the first reversal
-            self.palindromeAnim(self.demo, sym=True)
+            self.palindromeAnim({"mobj": self.demo, "sym": True})
         self.wait(0.5)
         
 class TenFiveDiagSum(TenFivePattern):
@@ -466,6 +466,8 @@ class TenFiveTopRow(TenFivePattern):
 
 class M2Palindromes(PisanoScene):
     def construct(self):
+        super().construct()
+
         def demo(m):
             if not self.grid:
                 self.grid = self.makeGrid(m, 2).scale(1.25).center()
@@ -479,7 +481,12 @@ class M2Palindromes(PisanoScene):
             self.wait()
 
             rows = [VGroup(*[i for i in self.grid[j::2]]) for j in range(2)]
-            self.palindromeAnim(rows[1])
+            palindromes = [{"mobj": rows[1]}]
+            subLength = int(len(rows[0])/2-1)
+            if subLength >= 3:
+                palindromes += [{"mobj": rows[0][1:subLength+1], "dir": UP}]
+                palindromes += [{"mobj": rows[0][subLength+2:], "dir": UP}]
+            self.palindromeAnim(palindromes)
             self.wait()
 
         self.play(Write(Text("Patterns", font_size=89).to_edge(UP)))
