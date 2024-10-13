@@ -43,7 +43,8 @@ class Fibonacci(Scene):
 
         self.next_section("MODULUS")
         # New definition at the top of the screen
-        subtitle = Tex("A number modulus 10 is the one's digit", font_size=55).to_edge(UP, buff=2)
+        subtitle = Tex("A number ", "modulus 10", " is the one's digit", font_size=55).to_edge(UP, buff=2)
+        subtitle.set_color_by_tex("modulus 10", RED)
         self.play(Write(subtitle))
         self.wait()
 
@@ -53,7 +54,7 @@ class Fibonacci(Scene):
 
         # Make an arrow with a label to be clear what we're doing
         arrow = Arrow(start=UP, end=DOWN).next_to(modEqns[0], UP)
-        arrowGroup = VGroup(arrow, MathTex(r"\bmod_{10}").add_updater(lambda l : l.next_to(arrow, RIGHT)))
+        arrowGroup = VGroup(arrow, MathTex(r"\bmod_{10}", color=RED).add_updater(lambda l : l.next_to(arrow, RIGHT)))
 
         # Animate the taking of the modulus
         self.play(Write(modEqns[0]), Write(arrowGroup))
@@ -169,7 +170,6 @@ class TenFiveDiagPalindrome(TenFivePattern):
             return VGroup(*[self.grid[(1+6*i+5*n) % 60] for i in range(4)])
 
         introAnims = [self.highlight(getSelection(slice))] # highlight the new set
-        copy = makeDemo() # make a copy ahead of time
         if first:
             self.demo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
         else:
@@ -177,10 +177,11 @@ class TenFiveDiagPalindrome(TenFivePattern):
         introAnims += [self.demo.animate.become(makeDemo())] # become the current selection
         self.play(*introAnims) # play all our intro animations
         if first: # only demo the first reversal
+            copy = self.demo.copy()
             self.play(self.demo.animate.shift(UP), copy.animate.shift(DOWN)) # split the original and the copy
             self.play(*[copy[i].animate.move_to(copy[len(copy)-1-i]) for i in range(len(copy))]) # invert the position of every letter of the copy
             self.play(self.demo.animate.shift(DOWN), copy.animate.shift(UP)) # re-overlay the two copies to show they're identical
-            self.play(FadeOut(copy), run_time=0.01) # kill the copy quick
+            self.remove(copy)
         self.wait(0.5)
         
 class TenFiveDiagSum(TenFivePattern):
@@ -309,8 +310,7 @@ class TenFiveFrequency(TenFivePattern):
                 self.play(self.highlight(self.demo[i-1], color))
                 self.play(self.highlight(getSelection(slice+2*(i-1)), color))
             if i < 5:
-                self.play(Write(self.demo[i]))
-                self.play(self.highlight(getSelection(slice+2*i)))
+                self.play(Write(self.demo[i]), self.highlight(getSelection(slice+2*i)))
             self.wait(0.5)
         self.wait(0.5)
 
@@ -322,7 +322,11 @@ class TenFiveLucas(TenFivePattern):
         # Prep the grid for manipulation
         rows = VGroup(*[VGroup(*[self.grid[i] for i in range(j,60+j, 5)]) for j in range(5)])
         self.play(self.grid.animate.center().shift(DOWN))
+        self.wait()
+
         self.play(FadeOut(rows[0]), self.highlight(rows[1:]))
+        self.wait()
+
         gridWidth = rows[1][1].get_bottom()[0] - rows[1][0].get_bottom()[0]
         # Extend the rows
         for row in rows[1:]:
@@ -337,6 +341,7 @@ class TenFiveLucas(TenFivePattern):
             for i in [*range(0, 10), *range(22, 32)]: 
                 newNumsAnim += [Write(row[i])]
         self.play(*newNumsAnim)
+        self.wait()
 
         # Align the rows
         self.play(
@@ -344,13 +349,14 @@ class TenFiveLucas(TenFivePattern):
             rows[3].animate.align_to(rows[1][26], RIGHT),
             rows[4].animate.align_to(rows[1][28], RIGHT)
         )
+        self.wait(1.5)
         self.play(
             rows[4].animate.align_to(rows[1], UP).set_color(WHITE),
             rows[3].animate.align_to(rows[1], UP).set_color(WHITE),
             rows[2].animate.align_to(rows[1], UP).set_color(WHITE),
             rows[1].animate.set_color(WHITE)
         )
-        self.wait()
+        self.wait(3)
 
         # Cleanup
         self.play(Transform(rows, self.makeGrid()), FadeOut(self.summary))
@@ -421,7 +427,7 @@ class TenFiveTopRow(TenFivePattern):
         for line in proof:
             self.play(Write(line))
 
-        self.wait()
+        self.wait(3)
         self.play(FadeOut(proof))
 
         # Proof that F(15n)=10k
@@ -453,6 +459,47 @@ class TenFiveTopRow(TenFivePattern):
         for line in proof:
             self.play(Write(line))
 
-        self.wait()
+        self.wait(3)
         self.play(FadeOut(proof), FadeOut(self.title), FadeOut(reminder))
+        self.wait()
+
+class TwoHPalindromes(Scene):
+    def construct(self):
+        def pisanoSequence(m):
+            ps = [0, 1]
+            while ps[-2:] != [1, 0]:
+                ps.append((ps[-2] + ps[-1]) % m)
+            return ps[:-1]
+        
+        def pisanoArray(m, h):
+            grid = VGroup(*[Tex(n) for n in pisanoSequence(m)])
+            return grid.arrange_in_grid(rows=h, flow_order="dr").scale(1.25).center()
+        
+        def makeLabel(m, h):
+            label = MathTex("P(", m, ",", h, ")")
+            label[1].set_color(RED)
+            label[3].set_color(ORANGE)
+            return label.scale(1.875).to_edge(UL)
+        
+        def demo(m, first=False):
+            if first:
+                self.label = makeLabel(m, 2)
+                self.grid = pisanoArray(m, 2)
+                self.play(Write(self.grid), Write(self.label))
+            else:
+                self.play(Transform(self.grid, pisanoArray(m, 2)), Transform(self.label, makeLabel(m, 2)))
+            self.wait()
+
+            rows = [VGroup(*[i for i in self.grid[j::2]]) for j in range(2)]
+            botCopy = rows[1].copy()
+            self.play(botCopy.animate.shift(DOWN))
+            self.play(*[botCopy[i].animate.move_to(botCopy[len(botCopy)-1-i]) for i in range(len(botCopy))])
+            self.play(botCopy.animate.shift(UP))
+            self.remove(botCopy)
+            self.wait()
+
+        self.play(Write(Text("Patterns", font_size=89).to_edge(UP)))
+
+        for m in range(3, 10):
+            demo(m, first=m==3)
         self.wait()
