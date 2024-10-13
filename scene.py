@@ -1,25 +1,7 @@
 from manim import *
 from templates import *
 
-def palindromeAnim(scene, mobj, dir=DOWN, sym=False):
-    copy = mobj.copy()
-
-    firstAnim = [copy.animate.shift(dir)]
-    if sym: firstAnim += [mobj.animate.shift(-dir)]
-    scene.play(*firstAnim)
-
-    scene.play(*[
-        copy[i].animate.move_to(copy[len(copy)-1-i])
-        for i in range(len(copy))
-    ])
-    
-    lastAnim = [copy.animate.shift(-dir)]
-    if sym: lastAnim += [mobj.animate.shift(dir)]
-    scene.play(*lastAnim)
-
-    scene.remove(copy)
-
-class Fibonacci(Scene):
+class Fibonacci(PisanoScene):
     def construct(self):
         # Title and definition of the Fibonacci numbers
         title = Text("Fibonacci Numbers", font_size=89).to_edge(UP)
@@ -94,13 +76,13 @@ class Fibonacci(Scene):
         self.play(Transform(title, Text("Pisano Arrays", font_size=89).to_edge(UP)), FadeOut(subtitle))
         self.wait()
 
-class Pisano(Scene):
+class Pisano(PisanoScene):
     def construct(self):
         # Recreate everything from the last scene
         pisanoTitle = Text("Pisano Arrays", font_size=89).to_edge(UP)
         subtitle = MathTex(r"\text{The Fibonacci numbers} \bmod_", "{10}", r" \text{ repeat every 60, so } \pi(", "10", ")=60", font_size=34)
         subtitle.to_edge(UP, buff=2).set_color_by_tex("10", RED)
-        modEqns = VGroup(*[MathTex(n) for n in [0, 1, 1, 2, 3, 5, 8, 3, 1, 4, r"\ldots"]])
+        modEqns = VGroup(*[MathTex(n) for n in [*self.pisanoSequence(10)[:10], r"\ldots"]])
         modEqns.arrange(RIGHT).to_edge(UP, buff=3).shift(LEFT*0.12590103)
         self.add(pisanoTitle)
         self.add(modEqns)
@@ -113,7 +95,7 @@ class Pisano(Scene):
         modEqns.remove(dots)
 
         # Write in the rest of the numbers
-        for num in [5, 9, 4, 3, 7, 0, 7, 7, 4, 1, 5, 6, 1, 7, 8, 5, 3, 8, 1, 9, 0, 9, 9, 8, 7, 5, 2, 7, 9, 6, 5, 1, 6, 7, 3, 0, 3, 3, 6, 9, 5, 4, 9, 3, 2, 5, 7, 2, 9, 1]:
+        for num in self.pisanoSequence(10)[10:]:
             modEqns.add(MathTex(num).next_to(modEqns[-1], RIGHT))
         self.play(FadeOut(dots), Write(modEqns[10:]))
         self.wait()
@@ -198,7 +180,7 @@ class TenFiveDiagPalindrome(TenFivePattern):
         introAnims += [self.demo.animate.become(makeDemo())] # become the current selection
         self.play(*introAnims) # play all our intro animations
         if first: # only demo the first reversal
-            palindromeAnim(self, self.demo, sym=True)
+            self.palindromeAnim(self.demo, sym=True)
         self.wait(0.5)
         
 class TenFiveDiagSum(TenFivePattern):
@@ -488,36 +470,22 @@ class TenFiveTopRow(TenFivePattern):
         self.play(FadeOut(proof), FadeOut(self.title), FadeOut(reminder))
         self.wait()
 
-class M2Palindromes(Scene):
+class M2Palindromes(PisanoScene):
     def construct(self):
-        def pisanoSequence(m):
-            ps = [0, 1]
-            while ps[-2:] != [1, 0]:
-                ps.append((ps[-2] + ps[-1]) % m)
-            return ps[:-1]
-        
-        def pisanoArray(m, h):
-            grid = VGroup(*[Tex(n) for n in pisanoSequence(m)])
-            return grid.arrange_in_grid(rows=h, flow_order="dr").scale(1.25).center()
-        
-        def makeLabel(m, h):
-            label = MathTex("P(", m, ",", h, ")")
-            label[1].set_color(RED)
-            label[3].set_color(ORANGE)
-            return label.scale(1.875).to_edge(UL)
-        
         def demo(m):
+            arr = self.makeGrid(m, 2).scale(1.25).center()
+            lbl = self.makeGridLabel(m, 2)
+
             if not self.grid:
-                self.label = makeLabel(m, 2)
-                self.grid = pisanoArray(m, 2)
+                self.grid = arr
+                self.label = lbl
                 self.play(Write(self.grid), Write(self.label))
             else:
-                self.play(Transform(self.grid, pisanoArray(m, 2)), Transform(self.label, makeLabel(m, 2)))
-                self.grid = pisanoArray(m, 2) # FIXME
+                self.play(Transform(self.grid, arr), Transform(self.label, lbl))
             self.wait()
 
             rows = [VGroup(*[i for i in self.grid[j::2]]) for j in range(2)]
-            palindromeAnim(self, rows[1])
+            self.palindromeAnim(rows[1])
             self.wait()
 
         self.play(Write(Text("Patterns", font_size=89).to_edge(UP)))
