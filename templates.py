@@ -69,9 +69,14 @@ class TenFivePattern(PisanoScene):
     def makeGrid(self):
         return super().makeGrid(10, 5).scale(1.25).center().to_edge(LEFT).shift(DOWN)
 
-    def makeEquation(self, a, b, mod=False):
-        [eq, sum] = ["=", a+b] if not mod else [r"\Rightarrow", (a+b)%10]
-        return MathTex(a, "+", b, eq, sum).set_color(self.HIGHLIGHT)
+    def makeEquation(self, a, b, mod=False, reverse=False):
+        arrow = r"\Leftarrow" if reverse else r"\Rightarrow"
+        [eq, sum] = ["=", a+b] if not mod else [arrow, (a+b)%10]
+        formula = [a, "+", b, eq, sum]
+
+        if reverse: formula = list(reversed(formula))
+        
+        return MathTex(*formula).set_color(self.HIGHLIGHT)
 
     def getSelection(self, offset, distance, r, n):
         return VGroup(*[self.grid[(offset+distance*i+5*n) % 60] for i in range(r)])

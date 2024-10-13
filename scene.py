@@ -1,158 +1,15 @@
 from manim import *
 from templates import *
 
-class Fibonacci(PisanoScene):
-    def construct(self):
-        # Title and definition of the Fibonacci numbers
-        title = Text("Fibonacci Numbers", font_size=89).to_edge(UP)
-        subtitle = MathTex(r"f_{0} = 0, \ f_{1} = 1, \ f_{n}=f_{n-1}+f_{n-2}", font_size=55)
-        subtitle.to_edge(UP, buff=2)
-        self.wait()
-        self.play(Write(title))
-        self.play(Write(subtitle))
+from Fibonacci import Fibonacci
+from Pisano import Pisano
+from M2Palindromes import M2Palindromes
 
-        self.next_section("EQUATIONS")
-        # Drawing the Fibonacci equations
-        vals = [0,1,1]
-        eqns = VGroup(MathTex(*r"{:.0f}  +  {:.0f}  =  {:.0f}".format(*vals).split("  ")))
-        for i in range(7):
-            vals.append(vals[1]+vals[2])
-            vals.pop(0)
-            eqn = MathTex(*r"{:.0f}  +  {:.0f}  =  {:.0f}".format(*vals).split("  "))
-            eqn.next_to(eqns[-1],DOWN).shift((eqns[-1][3].get_bottom()[0]-eqn[1].get_top()[0])*RIGHT)
-            eqns += eqn
-        eqns.next_to(subtitle, DOWN)
-        self.play(Write(eqns))
-        self.wait()
-        
-        self.next_section("REDUCTION")
-        # Reducing the equations to the right hand side
-        self.play(*[eqn.animate.become(eqn[4]) for eqn in eqns])
-        self.wait()
+class FibonacciScene(Fibonacci):
+    pass
 
-        # Aligning everything in one row with the numbers and elipsis
-        eqns.insert(0, MathTex("1").next_to(eqns[0], LEFT))
-        eqns.insert(0, MathTex("0").next_to(eqns[0], LEFT))
-        eqns += MathTex(r"\ldots").next_to(eqns[-1], RIGHT)
-        self.play(
-            AnimationGroup(Write(eqns[0]), Write(eqns[1]), Write(eqns[-1])),
-            AnimationGroup(eqns.animate.arrange(RIGHT).shift(UP), FadeOut(subtitle)),
-            lag_ratio=0.5
-        )
-        self.wait()
-
-        self.next_section("MODULUS")
-        # New definition at the top of the screen
-        subtitle = Tex("A number ", "modulus 10", " is the one's digit", font_size=55).to_edge(UP, buff=2)
-        subtitle.set_color_by_tex("modulus 10", RED)
-        self.play(Write(subtitle))
-        self.wait()
-
-        # Create our modulus numbers
-        modEqns = VGroup(*[MathTex(int((eqn if len(eqn) == 1 else eqn[4]).get_tex_string()) % 10).next_to(eqn, DOWN, buff=2) for eqn in eqns[:-1]])
-        modEqns += MathTex(r"\ldots").next_to(modEqns[-1], RIGHT).align_to(eqns[-1], RIGHT)
-
-        # Make an arrow with a label to be clear what we're doing
-        arrow = Arrow(start=UP, end=DOWN).next_to(modEqns[0], UP)
-        arrowGroup = VGroup(arrow, MathTex(r"\bmod_{10}", color=RED).add_updater(lambda l : l.next_to(arrow, RIGHT)))
-
-        # Animate the taking of the modulus
-        self.play(Write(modEqns[0]), Write(arrowGroup))
-        self.wait()
-        for eqn in modEqns[1:-1]:
-            self.play(
-                AnimationGroup(Write(eqn)),
-                AnimationGroup(arrow.animate.next_to(eqn, UP), run_time=0.33),
-                lag_ratio=0.5
-            )
-        self.play(Write(modEqns[-1]), FadeOut(arrowGroup))
-        self.wait()
-
-        # Fade out the old numbers and shift these up; left shift is to be centered way later on
-        self.play(modEqns.animate.arrange(RIGHT).to_edge(UP, buff=3).shift(LEFT*0.12590103), FadeOut(eqns))
-        self.wait()
-
-        self.next_section("OUTRO")
-        self.play(Transform(title, Text("Pisano Arrays", font_size=89).to_edge(UP)), FadeOut(subtitle))
-        self.wait()
-
-class Pisano(PisanoScene):
-    def construct(self):
-        # Recreate everything from the last scene
-        pisanoTitle = Text("Pisano Arrays", font_size=89).to_edge(UP)
-        subtitle = MathTex(r"\text{The Fibonacci numbers} \bmod_", "{10}", r" \text{ repeat every 60, so } \pi(", "10", ")=60", font_size=34)
-        subtitle.to_edge(UP, buff=2).set_color_by_tex("10", RED)
-        modEqns = VGroup(*[MathTex(n) for n in [*self.pisanoSequence(10)[:10], r"\ldots"]])
-        modEqns.arrange(RIGHT).to_edge(UP, buff=3).shift(LEFT*0.12590103)
-        self.add(pisanoTitle)
-        self.add(modEqns)
-        self.play(Write(subtitle))
-        self.wait(2)
-
-        self.next_section("PISANO SEQUENCE 10")
-        # Remove the dots
-        dots = modEqns[-1]
-        modEqns.remove(dots)
-
-        # Write in the rest of the numbers
-        for num in self.pisanoSequence(10)[10:]:
-            modEqns.add(MathTex(num).next_to(modEqns[-1], RIGHT))
-        self.play(FadeOut(dots), Write(modEqns[10:]))
-        self.wait()
-        
-        # Fade out the pisano period mention
-        self.play(FadeOut(subtitle))
-        self.wait()
-
-        self.next_section("P(10,5) DEFINITION")
-        # Throw up a new subtitile for the occasion
-        subtitle = Tex("Pisano Arrays need a ", "modulus", " and a ", "height", font_size=55)
-        subtitle.to_edge(UP, buff=2).set_color_by_tex("modulus", RED).set_color_by_tex("height", ORANGE)
-        self.play(Write(subtitle))
-        self.wait(1)
-
-        # First column
-        self.play(*[modEqns[i].animate.next_to(modEqns[0], DOWN, buff=0.25+max(0.625*(i-1), 0)) for i in range(1, 5)])
-
-        # Rest of the columns
-        for j in range (1, 12):
-            self.play(
-                *[modEqns[i].animate.next_to(modEqns[i-5], RIGHT) for i in range(5*j, 5*(j+1))], # Move the next 5 into a column
-                *[modEqns[i].animate.move_to(modEqns[i-4].get_center()) for i in range(5*(j+1), len(modEqns))] # Move the rest down to be columns on the next round
-            )
-        self.wait()
-
-        # Draw the brackets and defining left hand side
-        lBrack = MathTex("[").scale(6).next_to(modEqns, LEFT)
-        lHDef = MathTex("P(", "m", ",", "h", ")", "=").scale(1.25).next_to(lBrack, LEFT).set_color_by_tex("m", RED).set_color_by_tex("h", ORANGE)
-        rBrack = MathTex("]").scale(6).next_to(modEqns, RIGHT)
-        self.play(
-            Write(lHDef[0]), Write(lHDef[2]), Write(lHDef[4:]),
-            FadeOut(subtitle[0]), Transform(subtitle[1], lHDef[1]), FadeOut(subtitle[2]), Transform(subtitle[3], lHDef[3]),
-            Write(lBrack),
-            Write(rBrack),
-        )
-        self.wait()
-
-        lHDef = VGroup(lHDef[0], subtitle[1], lHDef[2], subtitle[3], lHDef[4], lHDef[5])
-
-        # Update the definition to show the correct numbers
-        lHDefNums = MathTex("P(", "10", ",", "5", ")", "=").move_to(lHDef.get_center())
-        lHDefNums.set_color_by_tex("10", RED).set_color_by_tex("5", ORANGE).scale(1.25)
-        self.play(lHDef.animate.become(lHDefNums))
-        self.wait()
-
-        self.next_section("OUTRO")
-        # Prep for scene change
-        gridLabel = VGroup(lHDef[0], subtitle[1], lHDef[2], subtitle[3], lHDef[4])
-        patternTitle = Text("Patterns", font_size=89).to_edge(UP)
-        self.play(
-            gridLabel.animate.scale(1.5).to_edge(UL),
-            Transform(pisanoTitle, patternTitle),
-            FadeOut(lHDef[5]), FadeOut(lBrack), FadeOut(rBrack)
-        )
-        self.play(modEqns.animate.arrange_in_grid(rows=5, cols=12, flow_order="dr").scale(1.25).center().to_edge(LEFT).shift(DOWN))
-        self.wait()
+class PisanoScene(Pisano):
+    pass
 
 class TenFiveDiagPalindrome(TenFivePattern):
     def construct(self):
@@ -189,7 +46,8 @@ class TenFiveDiagSum(TenFivePattern):
         s = Tex("Down-Left Diagonals (below the top row) form ", "sums", " pointing inward", font_size=34)
         s[1].set_color_by_gradient(self.HIGHLIGHT, RED)
         self.writeSummary(s)
-        for i in range(12):
+        for i in range(2):
+        # for i in range(12):
             self.playDemo(i)
         self.cleanup()
 
@@ -201,17 +59,17 @@ class TenFiveDiagSum(TenFivePattern):
             sel = [int(tex.get_tex_string()) for tex in getSelection(index)]
             demo = VGroup(
                 self.makeEquation(sel[3], sel[2]).set_color_by_gradient(RED, ORANGE),
-                self.makeEquation(sel[0], sel[1]).set_color_by_gradient(self.HIGHLIGHT, ORANGE))
-            demo.scale(2).arrange(DOWN).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
+                self.makeEquation(sel[0], sel[1], reverse=True).set_color_by_gradient(self.HIGHLIGHT, ORANGE))
+            demo.scale(2).arrange(DOWN).next_to(self.grid, RIGHT, buff=0.5)
 
             def demoUpdater(demo):
-                k = demo[0].get_left()[0] < demo[1].get_left()[0]
-                demo[1-k].align_to(demo[k], LEFT)
+                demo[1].align_to(demo[0][2], LEFT)
+                demo[1][2:].align_to(demo[0][-1], LEFT)
 
             return demo.add_updater(demoUpdater)
         
         def reducedAnim(n1, n2, i, color=self.HIGHLIGHT):
-            newEq = self.makeEquation(n1, n2, mod=True).set_color_by_gradient(color, ORANGE)
+            newEq = self.makeEquation(n1, n2, mod=True, reverse=i==1).set_color_by_gradient(color, ORANGE)
             newEq.scale(2).move_to(self.demo[i].get_center()).align_to(self.demo[i], LEFT)
             return self.demo[i].animate.become(newEq)
         
@@ -464,42 +322,5 @@ class TenFiveTopRow(TenFivePattern):
         self.play(FadeOut(proof), FadeOut(self.title), FadeOut(reminder))
         self.wait()
 
-class M2Palindromes(PisanoScene):
-    def construct(self):
-        super().construct()
-
-        def demo(m):
-            if not self.grid:
-                self.grid = self.makeGrid(m, 2).scale(1.25).center()
-                self.label = self.makeGridLabel(m, 2)
-                self.play(Write(self.grid), Write(self.label))
-            else:
-                self.play(Transform(self.grid, self.makeGrid(m, 2).scale(1.25).center()), Transform(self.label, self.makeGridLabel(m, 2)))
-                self.remove(self.grid)
-                self.grid = self.makeGrid(m, 2).scale(1.25).center()
-                self.add(self.grid)
-            self.wait()
-
-            rows = [VGroup(*[i for i in self.grid[j::2]]) for j in range(2)]
-            palindromes = [{"mobj": rows[1]}]
-            subLength = int(len(rows[0])/2-1)
-            if subLength >= 3:
-                palindromes += [{"mobj": rows[0][1:subLength+1], "dir": UP}]
-                palindromes += [{"mobj": rows[0][subLength+2:], "dir": UP}]
-            self.palindromeAnim(palindromes)
-            self.wait()
-
-        title = Text("Patterns", font_size=89).to_edge(UP)
-        subtitle = Tex("Just so many ", "palindromes", font_size=55).to_edge(UP, buff=2)
-        subtitle[1].set_color_by_gradient(self.HIGHLIGHT, RED)
-        self.play(Write(title))
-        self.play(Write(subtitle))
-
-        self.grid, self.label = VGroup(), VGroup()
-
-        for m in range(3, 10):
-            demo(m)
-        self.wait()
-
-        self.play(FadeOut(self.grid), FadeOut(self.label), FadeOut(title))
-        self.wait()
+class M2PalindromesScene(M2Palindromes):
+    pass
