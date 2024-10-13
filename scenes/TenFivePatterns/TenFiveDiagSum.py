@@ -23,7 +23,10 @@ class TenFiveDiagSum(TenFivePattern):
             demo.scale(2).arrange(DOWN).next_to(self.grid, RIGHT, buff=0.5)
 
             def demoUpdater(demo):
-                demo[1].align_to(demo[0][2], LEFT)
+                demo[1][0].align_to(demo[0][2], RIGHT)
+                demo[1][1].move_to(
+                    (demo[0][-2].get_center()[0], *demo[1][1].get_center()[1:])
+                )
                 demo[1][2:].align_to(demo[0][-1], LEFT)
 
             return demo.add_updater(demoUpdater)

@@ -26,7 +26,9 @@ class TenFiveTopRow(TenFivePattern):
             r"&= 5f_{5n-4} + 3f_{5(n-1)}\\",
             r"&= 5f_{5n-4} + 3 \times 5m\\",
             r"&= 5(f_{5n-4} + 3m)\\",
-            r"&= 5k\\", font_size=34,
+            r"&= 5k\\",
+            r"f_{10}&=55=5k_2\\",
+            r"f_5&=5=5k_1", font_size=34,
         ).next_to(reminder, DOWN)
 
         for line in proof:
@@ -46,10 +48,10 @@ class TenFiveTopRow(TenFivePattern):
                 r"&= 13f_{15n-6} + 8f_{15n-7}\\",
                 r"&= 21f_{15n-7} + 13f_{15n-8}\\",
                 r"&= 34f_{15n-8} + 21f_{15n-9}\\",
-                r"&= 55f_{15n-9} + 34f_{15n-10}",
+                r"&= 55f_{15n-9} + 34f_{15n-10}\\",
+                r"&= 89f_{15n-10} + 55f_{15n-11}\\",
                 font_size=34,
             ), MathTex(
-                r"&= 89f_{15n-10} + 55f_{15n-11}\\",
                 r"&= 144f_{15n-11} + 89f_{15n-12}\\",
                 r"&= 233f_{15n-12} + 144f_{15n-13}\\",
                 r"&= 377f_{15n-13} + 233f_{15n-14}\\",
@@ -57,9 +59,11 @@ class TenFiveTopRow(TenFivePattern):
                 r"&= 610f_{15n-14} + 377f_{15(n-1)}\\",
                 r"&= 610f_{15n-14} + 377 \times 10m\\",
                 r"&= 10(61f_{15n-14} + 377m)\\",
-                r"&= 10k", font_size=34,
+                r"&= 10k \\",
+                r"f_{30}&=832,040=10k_2\\",
+                r"f_{15}&=610=10k_1", font_size=34,
             )
-        ).arrange(RIGHT).next_to(reminder, DOWN)
+        ).arrange(RIGHT, buff=2).next_to(reminder, DOWN)
 
         for line in proof:
             self.play(Write(line))

@@ -21,7 +21,6 @@ class PisanoScene(Scene):
         label.set_color_by_tex(m, RED).set_color_by_tex(h, ORANGE)
         return label.scale(1.875).to_edge(UL)
     
-    # TODO: Allow highlighting as well
     def palindromeAnim(self, mobjDict = {"mobj": VGroup()}):
         if type(mobjDict) == dict:
             mobjDict = [mobjDict]
@@ -30,11 +29,12 @@ class PisanoScene(Scene):
         for mobjItem in mobjDict:
             color = mobjItem.get("color", False)
             mobjItem["copy"] = mobjItem["mobj"].copy()
+            anim = mobjItem["copy"].animate.shift(mobjItem.get("dir", DOWN))
             if color:
-                shiftAwayAnim += [mobjItem["copy"].animate.shift(mobjItem.get("dir", DOWN)).set_color(color)]
-            else:
-                shiftAwayAnim += [mobjItem["copy"].animate.shift(mobjItem.get("dir", DOWN))]
-            if mobjItem.get("sym", False): shiftAwayAnim += [mobjItem["mobj"].animate.shift(-mobjItem.get("dir", DOWN))]
+                anim.set_color(color)
+            shiftAwayAnim += [anim]
+            if mobjItem.get("sym", False):
+                shiftAwayAnim += [mobjItem["mobj"].animate.shift(-mobjItem.get("dir", DOWN))]
         self.play(*shiftAwayAnim)
 
         reverseAnim = []
@@ -47,8 +47,12 @@ class PisanoScene(Scene):
 
         shiftBackAnim = []
         for mobjItem in mobjDict:
-            shiftBackAnim += [mobjItem["copy"].animate.shift(-mobjItem.get("dir", DOWN))]
-            if mobjItem.get("sym", False): shiftBackAnim += [mobjItem["mobj"].animate.shift(mobjItem.get("dir", DOWN)).set_color(WHITE)]
+            anim = mobjItem["copy"].animate.shift(-mobjItem.get("dir", DOWN))
+            if mobjItem.get("color", False):
+                anim.set_color(WHITE)
+            shiftBackAnim += [anim]
+            if mobjItem.get("sym", False): 
+                shiftBackAnim += [mobjItem["mobj"].animate.shift(mobjItem.get("dir", DOWN))]
         self.play(*shiftBackAnim)
 
         for mobjItem in mobjDict:

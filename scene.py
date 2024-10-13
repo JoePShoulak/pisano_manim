@@ -2,6 +2,8 @@ from manim import *
 from templates import *
 from scenes import *
 
+config["max_files_cached"] = -1
+
 class FibonacciScene(Fibonacci):
     pass
 
