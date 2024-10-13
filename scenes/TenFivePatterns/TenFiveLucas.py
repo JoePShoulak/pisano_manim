@@ -4,7 +4,7 @@ from templates import TenFivePattern
 class TenFiveLucas(TenFivePattern):
     def construct(self):
         super().construct()
-        self.writeSummary(Tex("All rows but the top are... ", "the same", "?", font_size=55).set_color_by_tex("the same", self.HIGHLIGHT))
+        self.writeSummary(Tex("All rows but the top arethe same but ", "shifted", font_size=55).set_color_by_tex("shifted", self.HIGHLIGHT))
 
         # Prep the grid for manipulation
         rows = VGroup(*[VGroup(*[self.grid[i] for i in range(j,60+j, 5)]) for j in range(5)])

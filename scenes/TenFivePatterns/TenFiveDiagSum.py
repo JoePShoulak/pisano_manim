@@ -7,8 +7,7 @@ class TenFiveDiagSum(TenFivePattern):
         s = Tex("Down-Left Diagonals (below the top row) form ", "sums", " pointing inward", font_size=34)
         s[1].set_color_by_gradient(self.HIGHLIGHT, RED)
         self.writeSummary(s)
-        for i in range(2):
-        # for i in range(12):
+        for i in range(12):
             self.playDemo(i)
         self.cleanup()
 

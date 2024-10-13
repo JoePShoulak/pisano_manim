@@ -1,10 +1,8 @@
 from manim import *
 
-HIGHLIGHT = YELLOW_D
-
 class PisanoScene(Scene):
     def construct(self):
-        self.HIGHLIGHT = HIGHLIGHT
+        self.HIGHLIGHT = YELLOW_D
 
     def pisanoSequence(self, m):
         ps = [0, 1]
@@ -30,8 +28,12 @@ class PisanoScene(Scene):
 
         shiftAwayAnim = []
         for mobjItem in mobjDict:
+            color = mobjItem.get("color", False)
             mobjItem["copy"] = mobjItem["mobj"].copy()
-            shiftAwayAnim += [mobjItem["copy"].animate.shift(mobjItem.get("dir", DOWN))]
+            if color:
+                shiftAwayAnim += [mobjItem["copy"].animate.shift(mobjItem.get("dir", DOWN)).set_color(color)]
+            else:
+                shiftAwayAnim += [mobjItem["copy"].animate.shift(mobjItem.get("dir", DOWN))]
             if mobjItem.get("sym", False): shiftAwayAnim += [mobjItem["mobj"].animate.shift(-mobjItem.get("dir", DOWN))]
         self.play(*shiftAwayAnim)
 
@@ -46,7 +48,7 @@ class PisanoScene(Scene):
         shiftBackAnim = []
         for mobjItem in mobjDict:
             shiftBackAnim += [mobjItem["copy"].animate.shift(-mobjItem.get("dir", DOWN))]
-            if mobjItem.get("sym", False): shiftBackAnim += [mobjItem["mobj"].animate.shift(mobjItem.get("dir", DOWN))]
+            if mobjItem.get("sym", False): shiftBackAnim += [mobjItem["mobj"].animate.shift(mobjItem.get("dir", DOWN)).set_color(WHITE)]
         self.play(*shiftBackAnim)
 
         for mobjItem in mobjDict:
