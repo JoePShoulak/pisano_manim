@@ -10,6 +10,8 @@ HIGHLIGHT = YELLOW_D
 
 class TenFivePattern(Scene):
     def construct(self):
+        self.HIGHLIGHT = HIGHLIGHT
+
         self.title = Text("Patterns", font_size=89).to_edge(UP)
 
         self.label = MathTex("P(", "10", ",", "5", ")")
@@ -20,15 +22,16 @@ class TenFivePattern(Scene):
         self.summary = MathTex()
         self.demo = VGroup()
 
-        self.grid = VGroup(*[Tex(n) for n in pisanoSequence(10)])
-        self.grid.arrange_in_grid(rows=5, cols=12, flow_order="dr").scale(1.25).center().to_edge(LEFT).shift(DOWN)
+        self.grid = self.makeGrid()
 
         self.add(self.title)
         self.add(self.label)
         self.add(self.grid)
         self.wait()
 
-        self.HIGHLIGHT = HIGHLIGHT
+    def makeGrid(self):
+        grid = VGroup(*[Tex(n) for n in pisanoSequence(10)])
+        return grid.arrange_in_grid(rows=5, cols=12, flow_order="dr").scale(1.25).center().to_edge(LEFT).shift(DOWN)
 
     def writeSummary(self, summary):
         self.summary = summary
