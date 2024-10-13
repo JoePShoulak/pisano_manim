@@ -56,6 +56,15 @@ class TenFivePattern(PisanoScene):
     def makeGrid(self):
         return super().makeGrid(10, 5).scale(1.25).center().to_edge(LEFT).shift(DOWN)
 
+
+    def getSelection(self, offset, distance, r, n):
+        return VGroup(*[self.grid[(offset+distance*i+5*n) % 60] for i in range(r)])
+        # return VGroup(*[self.grid[(1+6*i+5*n) % 60] for i in range(4)])
+        # return VGroup(*[self.grid[(4+4*i+5*n) % 60] for i in range(4)])
+        # *[self.grid[(12+(1-i)+5*n) % 60] for i in range(2)],
+        # *[self.grid[(4+5*i+5*n) % 60] for i in range(2)],
+        # return VGroup(*[self.grid[(1+5*i+5*n) % 60] for i in range(3)])
+
     def writeSummary(self, summary):
         self.summary = summary
         self.play(Write(self.summary.next_to(self.title, DOWN, buff=0.75))) 

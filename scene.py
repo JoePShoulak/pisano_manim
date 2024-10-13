@@ -163,12 +163,12 @@ class TenFiveDiagPalindrome(TenFivePattern):
         self.cleanup()
 
     def playDemo(self, index):
-        def makeDemo(): # Make the 4 numbers we'll be moving around
+        def makeDemo():
             demo = VGroup(*[Tex(eqn.get_tex_string(), color=self.HIGHLIGHT) for eqn in getSelection(index)])
             return demo.scale(2).arrange(RIGHT, buff=1.0).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
 
         def getSelection(n):
-            return VGroup(*[self.grid[(1+6*i+5*n) % 60] for i in range(4)])
+            return self.getSelection(1, 6, 4, n)
         
         first = not self.demo
 
@@ -199,9 +199,9 @@ class TenFiveDiagSum(TenFivePattern):
             return MathTex(a, "+", b, eq, sum).set_color_by_gradient(startColor, ORANGE)
 
         def getSelection(n):
-            return VGroup(*[self.grid[(4+4*i+5*n) % 60] for i in range(4)])
+            return self.getSelection(4, 4, 4, n)
                 
-        def makeDemo(): # Make the 4 numbers we'll be moving around
+        def makeDemo():
             sel = [int(tex.get_tex_string()) for tex in getSelection(index)]
             demo = VGroup(makeEquation(sel[3], sel[2], startColor=RED), makeEquation(sel[0], sel[1]))
             demo.scale(2).arrange(DOWN).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
@@ -261,8 +261,8 @@ class TenFiveRightAngle(TenFivePattern):
         # This is kinda horrible, but it lets me arrange in grid how I want
         def getSelection(n):
             return VGroup(
-                *[self.grid[(12+(1-i)+5*n) % 60] for i in range(2)],
-                *[self.grid[(4+5*i+5*n) % 60] for i in range(2)],
+                *list(reversed(self.getSelection(12, 1, 2, n))),
+                *self.getSelection(4, 5, 2, n),
                 self.grid[(14+5*n) % 60]
             )
         
@@ -381,7 +381,7 @@ class TenFiveRowSum(TenFivePattern):
             return MathTex(a, "+", b, eq, sum).set_color(self.HIGHLIGHT)
 
         def getSelection(n):
-            return VGroup(*[self.grid[(1+5*i+5*n) % 60] for i in range(3)])
+            return self.getSelection(1, 5, 3, n)
                 
         def makeDemo(mod=False): 
             sel = [int(tex.get_tex_string()) for tex in getSelection(index)]
