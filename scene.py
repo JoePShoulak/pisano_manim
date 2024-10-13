@@ -356,3 +356,36 @@ class TenFiveLucas(TenFivePattern):
         self.play(Transform(rows, self.makeGrid()), FadeOut(self.summary))
         self.wait()
         
+class TenFiveRowSum(TenFivePattern):
+    def construct(self):
+        super().construct()
+        self.writeSummary(Tex("Rows also have a pattern with ", "sums", font_size=55).set_color_by_tex("sums", self.HIGHLIGHT))
+        for i in range(12):
+            self.playDemo(i, first=i==0)
+        self.cleanup()
+
+    def playDemo(self, slice, first=False):
+        def makeEquation(a, b, mod=False):
+            [eq, sum] = ["=", a+b] if not mod else [r"\Rightarrow", (a+b)%10]
+            return MathTex(a, "+", b, eq, sum).set_color(self.HIGHLIGHT)
+
+        def getSelection(n): # Get those 4 mobs from the source grid
+            return VGroup(*[self.grid[(1+5*i+5*n) % 60] for i in range(3)])
+                
+        def makeDemo(mod=False): 
+            sel = [int(tex.get_tex_string()) for tex in getSelection(slice)]
+            return makeEquation(sel[0], sel[1], mod).scale(2).next_to(self.grid, RIGHT).to_edge(RIGHT, buff=1.5)
+        
+        introAnims = [getSelection(slice).animate.set_color(self.HIGHLIGHT)] # highlight the new set
+        if first:
+            self.demo = makeDemo().scale(0) # if this is our first animation, hide the demo but in the right position
+        else:
+            introAnims += [self.unhighlight(getSelection(slice-1)[0])] # otherwise, unhighlight the last selection
+        introAnims += [self.demo.animate.become(makeDemo())] # become the current selection
+        self.play(*introAnims) # play all our intro animations
+        sel = [int(tex.get_tex_string()) for tex in getSelection(slice)]
+        if sel[0] + sel[1] >= 10:
+            self.play(self.demo.animate.become(makeDemo(True).align_to(self.demo, LEFT)))
+        if first:
+            self.wait()
+        self.wait(0.5)
