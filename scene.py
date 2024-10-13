@@ -1,6 +1,21 @@
 from manim import *
 from templates import *
 
+def palindromeDemo(scene, mobj, dir=DOWN, sym=False):
+    copy = mobj.copy()
+
+    firstAnim = [copy.animate.shift(dir)]
+    if sym: firstAnim += [mobj.animate.shift(-dir)]
+    scene.play(*firstAnim)
+
+    scene.play(*[copy[i].animate.move_to(copy[len(copy)-1-i]) for i in range(len(copy))])
+    
+    lastAnim = [copy.animate.shift(-dir)]
+    if sym: lastAnim += [mobj.animate.shift(dir)]
+    scene.play(*lastAnim)
+
+    scene.remove(copy)
+
 class Fibonacci(Scene):
     def construct(self):
         # Title and definition of the Fibonacci numbers
@@ -109,6 +124,7 @@ class Pisano(Scene):
         subtitle = Tex("Pisano Arrays need a ", "modulus", " and a ", "height", font_size=55)
         subtitle.to_edge(UP, buff=2).set_color_by_tex("modulus", RED).set_color_by_tex("height", ORANGE)
         self.play(Write(subtitle))
+        self.wait(1)
 
         # First column
         self.play(*[modEqns[i].animate.next_to(modEqns[0], DOWN, buff=0.25+max(0.625*(i-1), 0)) for i in range(1, 5)])
@@ -177,11 +193,7 @@ class TenFiveDiagPalindrome(TenFivePattern):
         introAnims += [self.demo.animate.become(makeDemo())] # become the current selection
         self.play(*introAnims) # play all our intro animations
         if first: # only demo the first reversal
-            copy = self.demo.copy()
-            self.play(self.demo.animate.shift(UP), copy.animate.shift(DOWN)) # split the original and the copy
-            self.play(*[copy[i].animate.move_to(copy[len(copy)-1-i]) for i in range(len(copy))]) # invert the position of every letter of the copy
-            self.play(self.demo.animate.shift(DOWN), copy.animate.shift(UP)) # re-overlay the two copies to show they're identical
-            self.remove(copy)
+            palindromeDemo(self, self.demo, sym=True)
         self.wait(0.5)
         
 class TenFiveDiagSum(TenFivePattern):
@@ -463,7 +475,7 @@ class TenFiveTopRow(TenFivePattern):
         self.play(FadeOut(proof), FadeOut(self.title), FadeOut(reminder))
         self.wait()
 
-class TwoHPalindromes(Scene):
+class M2Palindromes(Scene):
     def construct(self):
         def pisanoSequence(m):
             ps = [0, 1]
@@ -488,14 +500,11 @@ class TwoHPalindromes(Scene):
                 self.play(Write(self.grid), Write(self.label))
             else:
                 self.play(Transform(self.grid, pisanoArray(m, 2)), Transform(self.label, makeLabel(m, 2)))
+                self.grid = pisanoArray(m,2) # FIXME
             self.wait()
 
             rows = [VGroup(*[i for i in self.grid[j::2]]) for j in range(2)]
-            botCopy = rows[1].copy()
-            self.play(botCopy.animate.shift(DOWN))
-            self.play(*[botCopy[i].animate.move_to(botCopy[len(botCopy)-1-i]) for i in range(len(botCopy))])
-            self.play(botCopy.animate.shift(UP))
-            self.remove(botCopy)
+            palindromeDemo(self, rows[1])
             self.wait()
 
         self.play(Write(Text("Patterns", font_size=89).to_edge(UP)))
