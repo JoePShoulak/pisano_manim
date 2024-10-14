@@ -4,9 +4,24 @@ from templates import TenFivePattern
 class TenFiveRightAngle(TenFivePattern):
     def construct(self):
         super().construct()
-        self.writeSummary(Tex("Right Angles at the bottom (\"pointing\" down-right) ", "repeat", font_size=34).set_color_by_tex("repeat", self.HIGHLIGHT))
-        for i in range(12):
-            self.playDemo(i)
+        with self.voiceover("This next pattern is a bit special because it's not a straight line, but a corner!"):
+            self.writeSummary(Tex("Right Angles at the bottom (\"pointing\" down-right) ", "repeat", font_size=34).set_color_by_tex("repeat", self.HIGHLIGHT))
+        
+        with self.voiceover(
+            """We can see here that we get this cyclic pattern, skipping over the corner that defines it.
+            """
+        ):
+            self.playDemo(0)
+
+        with self.voiceover(
+            """One thing I haven't clarified explicitly is that because the Fibonacci sequence repeats with a given modulus,
+            and the grid is some grid where the height divides the period, the grid 'does' repeat infinitely in both directions.
+            Because of this, finding a pattern the way we're doing 'actually' proves it. No algebra, no 'only-kind-of', we proved it.
+            """
+        ):
+            for i in range(1, 12):
+                self.playDemo(i)
+
         self.cleanup()
 
     def playDemo(self, index):
