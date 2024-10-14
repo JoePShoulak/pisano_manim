@@ -8,7 +8,7 @@ class Fibonacci(VoiceoverScene):
         self.set_speech_service(AzureService(
                 voice="en-US-AriaNeural",
                 style="newscast-casual",))
-        with self.voiceover("Let's talk about the Fibonacci numbers"):
+        with self.voiceover("So today let's talk about the Fibonacci numbers"):
             # Title and definition of the Fibonacci numbers
             title = Text("Fibonacci Numbers", font_size=89).to_edge(UP)
             subtitle = MathTex(r"f_{0} = 0, \ f_{1} = 1, \ f_{n}=f_{n-1}+f_{n-2}", font_size=55)
@@ -38,7 +38,7 @@ class Fibonacci(VoiceoverScene):
             self.play(Write(eqns), run_time=10)
     
         with self.voiceover(
-            """As much as I love the way those equations <bookmark mark='ARRANGE'/>arrange themselves, we still have some work to do with these numbers. So let's clean them up!"""
+            """As much as I love the way these equations <bookmark mark='ARRANGE'/>arrange themselves, we still have some work to do with these numbers. So let's clean them up!"""
         ):
             # Reducing the equations to the right hand side
             self.play(*[eqn.animate.become(eqn[4]) for eqn in eqns])
@@ -55,7 +55,7 @@ class Fibonacci(VoiceoverScene):
             )
 
         self.next_section("MODULUS")
-        with self.voiceover("""We're going to start by taking the Fibonacci numbers modulus (or, mod) 10. 
+        with self.voiceover("""We're going to start by taking the Fibonacci numbers modulus, or, mod 10. 
                             Taking the mod of something just means dividing by a number, but looking at the remainder instead of the answer to the division.
                             Conveniently, when doing so with <bookmark mark='mod10'/>10, that just leaves the one's digit."""):
             # New definition at the top of the screen
@@ -85,10 +85,11 @@ class Fibonacci(VoiceoverScene):
             self.play(Write(modEqns[-1]), FadeOut(arrowGroup))
 
         # Fade out the old numbers and shift these up; left shift is to be centered way later on
-        self.play(modEqns.animate.arrange(RIGHT).to_edge(UP, buff=3).shift(LEFT*0.12590103), FadeOut(eqns))
-        self.wait()
+        with self.voiceover("Now we're almost ready to talk about Pisano Arrays"):
+            self.play(modEqns.animate.arrange(RIGHT).to_edge(UP, buff=3).shift(LEFT*0.12590103), FadeOut(eqns))
+            self.wait()
 
-        self.next_section("OUTRO")
-        self.play(Transform(title, Text("Pisano Arrays", font_size=89).to_edge(UP)), FadeOut(subtitle))
-        self.wait()
+            self.next_section("OUTRO")
+            self.play(Transform(title, Text("Pisano Arrays", font_size=89).to_edge(UP)), FadeOut(subtitle))
+            self.wait()
 
