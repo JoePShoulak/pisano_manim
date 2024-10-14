@@ -4,18 +4,45 @@ from templates import TenFivePattern
 class TenFiveTopRow(TenFivePattern):
     def construct(self):
         super().construct()
-        self.writeSummary(Tex("The top row is all ", "5", "s and ", "0", "s", font_size=55).set_color_by_tex("5", self.HIGHLIGHT).set_color_by_tex("0", self.HIGHLIGHT))
-        self.play(self.highlight(VGroup(*[self.grid[i] for i in range(0, 60, 5)])))
-        self.wait(0.5)
+        with self.voiceover("Now, you may be wondering why I left this pattern so late, since you maybe noticed it first."):
+            self.writeSummary(Tex("The top row is all ", "5", "s and ", "0", "s", font_size=55).set_color_by_tex("5", self.HIGHLIGHT).set_color_by_tex("0", self.HIGHLIGHT))
+            self.play(self.highlight(VGroup(*[self.grid[i] for i in range(0, 60, 5)])))
+            self.wait(0.5)
         
-        self.play(self.unhighlight(self.grid))
-        gridFrame = VGroup(self.summary, self.grid, self.label)
-        self.play(FadeOut(gridFrame), Transform(self.title, Tex("Proof: $f_{5n}=5k$", font_size=89).to_edge(UP)))
-        self.wait()
+        with self.voiceover(
+            """The reason is, this one isn't too bad to prove algebraically.
+            So for those unsatisfied with a purely observational proof, we can do some actual math now.
+        """):
+            self.play(self.unhighlight(self.grid))
+            gridFrame = VGroup(self.summary, self.grid, self.label)
+            self.play(FadeOut(gridFrame), Transform(self.title, Tex("Proof: $f_{5n}=5k$", font_size=89).to_edge(UP)))
+            self.wait()
 
-        self.next_section("PROOF")
-        reminder = MathTex(r"f_{n}=f_{n-1}+f_{n-2}", font_size=55).next_to(self.title, DOWN)
-        self.play(Write(reminder))
+        with self.voiceover(
+            """So we're trying to prove every fifth Fibonacci number is a multiple of 5.
+            I'll show you how to do that using nothing but the <bookmark mark='def'/>definition of the Fibonacci numbers,
+            and something called inductive reasoning.
+"""
+        ):
+            self.next_section("PROOF")
+            reminder = MathTex(r"f_{n}=f_{n-1}+f_{n-2}", font_size=55).next_to(self.title, DOWN)
+            self.wait_until_bookmark('def')
+            self.play(Write(reminder))
+
+        vos = [
+            "We start by decomposing f sub 5 n into the two numbers that came before it",
+            "Then we do that same thing, but to the largest Fibonacci number on the right side.",
+            "and do it again",
+            """and after one more time you may begin noticing these terms have Fibonacci numbers in them! That's no coincidence, and helps make this work.
+            so now we have 5 times some Fibonacci number, plus 3 times another Fibonacci number, f sub 5 n minus 5""",
+            "but we could rewrite that same number as f sub 5 times n minus one",
+            "which, if our hypothesis is correct, is itself a multiple of 5",
+            "that means we can factor a 5 out of our entire definition of f sub 5 n",
+            """and since all that's left is an integer, we're safe replacing it with k, therefore proving our point. Well, almost.
+            At this point, we've basically proven that if some Fibonacci number with an index that's a multiple of 5 is itself a multiple of 5,
+            then that would be true for the Fibonacci number 5 terms after it, and 5 terms after that, and so on. We still need to prove there's some situation where it's true at all.
+            As my Discrete Mathematics teacher taught me, induction is like climbing a ladder. First you prove that the ladder 'works', then you find the bottom few rungs to prove it 'exists'."""
+        ]
 
         # Proof that F(5n) = 5k
         proof = MathTex(
@@ -26,48 +53,28 @@ class TenFiveTopRow(TenFivePattern):
             r"&= 5f_{5n-4} + 3f_{5(n-1)}\\",
             r"&= 5f_{5n-4} + 3 \times 5m\\",
             r"&= 5(f_{5n-4} + 3m)\\",
-            r"&= 5k\\",
+            r"f_{5n} &= 5k\\",
             r"f_{10}&=55=5k_2\\",
             r"f_5&=5=5k_1", font_size=34,
         ).next_to(reminder, DOWN)
 
-        for line in proof:
-            self.play(Write(line))
+        for vo, line in zip(vos, proof[:-2]):
+            with self.voiceover(vo):
+                self.play(Write(line))
 
-        self.wait(3)
-        self.play(FadeOut(proof))
+        with self.voiceover(
+            """So, by writing the first two Fibonacci numbers that meat our pattern (above zero), we can think about 'climbing up' this proof. 
+            We start with the two things that are obviously true, and continue climbing up the logic until we reach our general proof. 
+            Beautiful, isn't it? """
+        ):
+            self.play(Write(proof[-2:]))
 
-        # Proof that F(15n)=10k
-        proof = VGroup(
-            MathTex(
-                r"f_{15n} &= f_{15n-1} + f_{15n-2}\\",
-                r"&= 2f_{15n-2} + f_{15n-3}\\",
-                r"&= 3f_{15n-3} + 2f_{15n-4}\\",
-                r"&= 5f_{15n-4} + 3f_{15n-5}\\",
-                r"&= 8f_{15n-5} + 5f_{15n-6}\\",
-                r"&= 13f_{15n-6} + 8f_{15n-7}\\",
-                r"&= 21f_{15n-7} + 13f_{15n-8}\\",
-                r"&= 34f_{15n-8} + 21f_{15n-9}\\",
-                r"&= 55f_{15n-9} + 34f_{15n-10}\\",
-                r"&= 89f_{15n-10} + 55f_{15n-11}\\",
-                font_size=34,
-            ), MathTex(
-                r"&= 144f_{15n-11} + 89f_{15n-12}\\",
-                r"&= 233f_{15n-12} + 144f_{15n-13}\\",
-                r"&= 377f_{15n-13} + 233f_{15n-14}\\",
-                r"&= 610f_{15n-14} + 377f_{15n-15}\\",
-                r"&= 610f_{15n-14} + 377f_{15(n-1)}\\",
-                r"&= 610f_{15n-14} + 377 \times 10m\\",
-                r"&= 10(61f_{15n-14} + 377m)\\",
-                r"&= 10k \\",
-                r"f_{30}&=832,040=10k_2\\",
-                r"f_{15}&=610=10k_1", font_size=34,
-            )
-        ).arrange(RIGHT, buff=2).next_to(reminder, DOWN)
+        with self.voiceover(
+            """For those that were craving this level of algebra all-video-long, here's a homework problem for you:
+            <bookmark mark='prove'/>Prove that every 15th Fibonacci number is a multiple of 10, which would explain the 0s in our grid."""
+        ):
+            self.wait_until_bookmark("prove")
+            self.play(Transform(proof, Tex("?").scale(3)), FadeOut(reminder), Transform(self.title, Tex("Proof: $f_{15n}=10k$", font_size=89).to_edge(UP)))
 
-        for line in proof:
-            self.play(Write(line))
-
-        self.wait(3)
-        self.play(FadeOut(proof), FadeOut(self.title), FadeOut(reminder))
+        self.play(FadeOut(proof), FadeOut(self.title))
         self.wait()
