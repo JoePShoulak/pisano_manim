@@ -8,6 +8,7 @@ class Fibonacci(VoiceoverScene):
         self.set_speech_service(AzureService(
                 voice="en-US-AriaNeural",
                 style="newscast-casual",))
+        
         with self.voiceover("So today let's talk about the Fibonacci numbers"):
             # Title and definition of the Fibonacci numbers
             title = Text("Fibonacci Numbers", font_size=89).to_edge(UP)
@@ -66,7 +67,7 @@ class Fibonacci(VoiceoverScene):
             self.wait()
 
         # Create our modulus numbers
-        with self.voiceover("This leaves us with 0, 1, 1, 2, 3, 5, 8, 3, 1, 4", ):
+        with self.voiceover("This leaves us with 0, 1, 1, 2, 3, 5, 8, 3, 1, 4"):
             modEqns = VGroup(*[MathTex(int((eqn if len(eqn) == 1 else eqn[4]).get_tex_string()) % 10).next_to(eqn, DOWN, buff=2) for eqn in eqns[:-1]])
             modEqns += MathTex(r"\ldots").next_to(modEqns[-1], RIGHT).align_to(eqns[-1], RIGHT)
 
