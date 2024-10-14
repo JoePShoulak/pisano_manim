@@ -9,7 +9,9 @@ class Fibonacci(VoiceoverScene):
                 voice="en-US-AriaNeural",
                 style="newscast-casual",))
         
-        with self.voiceover("So today let's talk about the Fibonacci numbers"):
+        with self.voiceover(
+            """So today we're going to talk about Pisano Arrays,
+            but first we have to start with the Fibonacci numbers"""):
             # Title and definition of the Fibonacci numbers
             title = Text("Fibonacci Numbers", font_size=89).to_edge(UP)
             subtitle = MathTex(r"f_{0} = 0, \ f_{1} = 1, \ f_{n}=f_{n-1}+f_{n-2}", font_size=55)
@@ -67,7 +69,7 @@ class Fibonacci(VoiceoverScene):
             self.wait()
 
         # Create our modulus numbers
-        with self.voiceover("This leaves us with 0, 1, 1, 2, 3, 5, 8, 3, 1, 4"):
+        with self.voiceover("This leaves us with 0, 1, 1, 2, 3, 5, 8, 3, 1, 4, and so on"):
             modEqns = VGroup(*[MathTex(int((eqn if len(eqn) == 1 else eqn[4]).get_tex_string()) % 10).next_to(eqn, DOWN, buff=2) for eqn in eqns[:-1]])
             modEqns += MathTex(r"\ldots").next_to(modEqns[-1], RIGHT).align_to(eqns[-1], RIGHT)
 

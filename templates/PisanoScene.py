@@ -1,15 +1,8 @@
 from manim import *
-from manim_voiceover import VoiceoverScene
 
-class PisanoScene(VoiceoverScene):
+class PisanoScene(Scene):
     def construct(self):
         self.HIGHLIGHT = YELLOW_D
-
-    def pisanoSequence(self, m):
-        ps = [0, 1]
-        while ps[-2:] != [1, 0]:
-            ps.append((ps[-2] + ps[-1]) % m)
-        return ps[:-1]
     
     def makeGrid(self, m, h):
         grid = VGroup(*[Tex(n) for n in self.pisanoSequence(m)])
