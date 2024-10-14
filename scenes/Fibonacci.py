@@ -1,13 +1,9 @@
 from manim import *
 from templates import *
-from manim_voiceover import VoiceoverScene
-from manim_voiceover.services.azure import AzureService
 
-class Fibonacci(VoiceoverScene):
+class Fibonacci(PisanoScene):
     def construct(self):
-        self.set_speech_service(AzureService(
-                voice="en-US-AriaNeural",
-                style="newscast-casual",))
+        super().construct()
         
         with self.voiceover(
             """So today we're going to talk about Pisano Arrays,

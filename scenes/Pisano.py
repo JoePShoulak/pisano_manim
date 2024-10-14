@@ -9,12 +9,9 @@ def pisanoSequence(m):
         ps.append((ps[-2] + ps[-1]) % m)
     return ps[:-1]
 
-class Pisano(VoiceoverScene):
+class Pisano(PisanoScene):
     def construct(self):
-        self.set_speech_service(AzureService(
-                voice="en-US-AriaNeural",
-                style="newscast-casual",))
-        
+        super().construct()
         # Recreate everything from the last scene
         with self.voiceover(
             """The Fibonacci numbers mod 10 repeat every 60.

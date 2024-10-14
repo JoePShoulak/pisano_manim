@@ -1,8 +1,13 @@
 from manim import *
+from manim_voiceover import VoiceoverScene
+from manim_voiceover.services.azure import AzureService
 
-class PisanoScene(Scene):
+class PisanoScene(VoiceoverScene):
     def construct(self):
         self.HIGHLIGHT = YELLOW_D
+        self.set_speech_service(AzureService(
+                voice="en-US-AriaNeural",
+                style="newscast-casual",))
     
     def makeGrid(self, m, h):
         grid = VGroup(*[Tex(n) for n in self.pisanoSequence(m)])
