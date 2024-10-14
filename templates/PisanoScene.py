@@ -8,6 +8,12 @@ class PisanoScene(VoiceoverScene):
         self.set_speech_service(AzureService(
                 voice="en-US-AriaNeural",
                 style="newscast-casual",))
+        
+    def pisanoSequence(self, m):
+        ps = [0, 1]
+        while ps[-2:] != [1, 0]:
+            ps.append((ps[-2] + ps[-1]) % m)
+        return ps[:-1]
     
     def makeGrid(self, m, h):
         grid = VGroup(*[Tex(n) for n in self.pisanoSequence(m)])

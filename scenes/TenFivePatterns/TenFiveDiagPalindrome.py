@@ -4,9 +4,22 @@ from templates import TenFivePattern
 class TenFiveDiagPalindrome(TenFivePattern):
     def construct(self):
         super().construct()
-        self.writeSummary(Tex("Down-Right Diagonals (below the top row) form ", "palindromes", font_size=34).set_color_by_tex("palindromes", self.HIGHLIGHT))
-        for i in range(12):
-            self.playDemo(i)
+
+        with self.voiceover(
+            """The first pattern we'll look at is on the down-right diagonal."""
+        ):
+            self.writeSummary(Tex("Down-Right Diagonals (below the top row) form ", "palindromes", font_size=34).set_color_by_tex("palindromes", self.HIGHLIGHT))
+        with self.voiceover(
+            """It's important to try to figure out what this diagonal is actually representing, in terms of the original sequence.
+            Because our grid height is 5, going 'down' our sequence by 5 is the same as going 'right' by one column.
+            <bookmark mark='since'/>Since this diagonal talks about going right one and down one, it's actually describing every 6th Fibonacci number.
+            Neat, huh? Well, on to the next one!"""
+        ):
+            self.playDemo(0)
+            self.wait_until_bookmark("since")
+            for i in range(1, 12):
+                self.playDemo(i)
+
         self.cleanup()
 
     def playDemo(self, index):

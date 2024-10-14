@@ -1,13 +1,5 @@
 from manim import *
 from templates import *
-from manim_voiceover import VoiceoverScene
-from manim_voiceover.services.azure import AzureService
-
-def pisanoSequence(m):
-    ps = [0, 1]
-    while ps[-2:] != [1, 0]:
-        ps.append((ps[-2] + ps[-1]) % m)
-    return ps[:-1]
 
 class Pisano(PisanoScene):
     def construct(self):
@@ -22,7 +14,7 @@ class Pisano(PisanoScene):
             pisanoTitle = Text("Pisano Arrays", font_size=89).to_edge(UP)
             subtitle = MathTex(r"\text{The Fibonacci numbers} \bmod_", "{10}", r" \text{ repeat every 60, so } \pi(", "10", ")=60", font_size=34)
             subtitle.to_edge(UP, buff=2).set_color_by_tex("10", RED)
-            modEqns = VGroup(*[MathTex(n) for n in [*pisanoSequence(10)[:10], r"\ldots"]])
+            modEqns = VGroup(*[MathTex(n) for n in [*self.pisanoSequence(10)[:10], r"\ldots"]])
             modEqns.arrange(RIGHT).to_edge(UP, buff=3).shift(LEFT*0.12590103)
             self.add(pisanoTitle)
             self.add(modEqns)
@@ -37,7 +29,7 @@ class Pisano(PisanoScene):
             modEqns.remove(dots)
 
             # Write in the rest of the numbers
-            for num in pisanoSequence(10)[10:]:
+            for num in self.pisanoSequence(10)[10:]:
                 modEqns.add(MathTex(num).next_to(modEqns[-1], RIGHT))
             self.play(FadeOut(dots), Write(modEqns[10:]))
             self.wait()
