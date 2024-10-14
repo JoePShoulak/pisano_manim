@@ -33,3 +33,6 @@ class TenFiveTopRowScene(TenFiveTopRow):
 
 class M2PalindromesScene(M2Palindromes):
     pass
+
+class OutroScene(Outro):
+    pass

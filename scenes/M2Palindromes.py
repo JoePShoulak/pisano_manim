@@ -46,14 +46,29 @@ class M2Palindromes(PisanoScene):
         subtitle = Tex("Just so many ", "palindromes", font_size=55)
         subtitle.to_edge(UP, buff=2)
         subtitle[1].set_color_by_gradient(self.HIGHLIGHT, RED)
-        self.play(Write(title))
-        self.play(Write(subtitle))
+        with self.voiceover(
+            """Okay, so when I said another pattern was my favorite pattern, that was specifically in the ten-five Pisano array."""
+        ):
+            self.play(Write(title))
+        with self.voiceover(
+            """This is probably my favorite pattern over all. We'll consider arrays of a bunch of different moduli, but all of height two."""
+        ):
+            self.play(Write(subtitle))
 
         self.grid, self.label = VGroup(), VGroup()
 
-        for m in range(3, 20):
-            demo(m)
-        self.wait()
+        with self.voiceover("With all the ones I've tested, the bottom row is a palindrome. I haven't proven this yet, but how exciting would that be?"):
+            demo(3)
+            demo(4)
+
+        with self.voiceover(
+            """For some of them, the top row consists of two palindromes seperated by zeroes.
+            Again, I haven't figured out exactly when and why these happen, but I'd love to know.
+            I think this is a bit more fun to watch than talk about, so let's just enjoy for a moment."""
+        ):
+            for m in range(5, 20):
+                demo(m)
+            self.wait()
 
         self.play(
             FadeOut(self.grid),
