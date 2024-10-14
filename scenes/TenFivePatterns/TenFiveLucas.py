@@ -4,15 +4,17 @@ from templates import TenFivePattern
 class TenFiveLucas(TenFivePattern):
     def construct(self):
         super().construct()
-        self.writeSummary(Tex("All rows but the top arethe same but ", "shifted", font_size=55).set_color_by_tex("shifted", self.HIGHLIGHT))
+        with self.voiceover("This is my favorite pattern!"):
+            self.writeSummary(Tex("All rows but the top are the same but ", "shifted", font_size=55).set_color_by_tex("shifted", self.HIGHLIGHT))
 
         # Prep the grid for manipulation
-        rows = VGroup(*[VGroup(*[self.grid[i] for i in range(j,60+j, 5)]) for j in range(5)])
-        self.play(self.grid.animate.center().shift(DOWN))
-        self.wait()
+        with self.voiceover("Let's start by centering this grid."):
+            rows = VGroup(*[VGroup(*[self.grid[i] for i in range(j,60+j, 5)]) for j in range(5)])
+            self.play(self.grid.animate.center().shift(DOWN))
 
-        self.play(FadeOut(rows[0]), self.highlight(rows[1:]))
-        self.wait()
+        with self.voiceover("And we won't need the top row for now"):
+            self.play(FadeOut(rows[0]), self.highlight(rows[1:]))
+            self.wait()
 
         gridWidth = rows[1][1].get_bottom()[0] - rows[1][0].get_bottom()[0]
         # Extend the rows
@@ -27,23 +29,27 @@ class TenFiveLucas(TenFivePattern):
         for row in rows[1:]:
             for i in [*range(0, 10), *range(22, 32)]: 
                 newNumsAnim += [Write(row[i])]
-        self.play(*newNumsAnim)
-        self.wait()
 
-        # Align the rows
-        self.play(
-            rows[2].animate.align_to(rows[1][27], RIGHT),
-            rows[3].animate.align_to(rows[1][26], RIGHT),
-            rows[4].animate.align_to(rows[1][28], RIGHT)
-        )
-        self.wait(1.5)
-        self.play(
-            rows[4].animate.align_to(rows[1], UP).set_color(WHITE),
-            rows[3].animate.align_to(rows[1], UP).set_color(WHITE),
-            rows[2].animate.align_to(rows[1], UP).set_color(WHITE),
-            rows[1].animate.set_color(WHITE)
-        )
-        self.wait(3)
+        with self.voiceover("Next, we'll need to extend this grid a bit"):
+            self.play(*newNumsAnim)
+            self.wait()
+
+
+        with self.voiceover(
+            """By shifting, we see these really are all the same row! They also happen to be the same as another sequence related to the Fibonacci numbers, called the Lucas numbers"""
+        ):
+            self.play(
+                rows[2].animate.align_to(rows[1][27], RIGHT),
+                rows[3].animate.align_to(rows[1][26], RIGHT),
+                rows[4].animate.align_to(rows[1][28], RIGHT)
+            )
+            self.wait(3)
+            self.play(
+                rows[4].animate.align_to(rows[1], UP).set_color(WHITE),
+                rows[3].animate.align_to(rows[1], UP).set_color(WHITE),
+                rows[2].animate.align_to(rows[1], UP).set_color(WHITE),
+                rows[1].animate.set_color(WHITE)
+            )
 
         # Cleanup
         self.play(Transform(rows, self.makeGrid()), FadeOut(self.summary))
