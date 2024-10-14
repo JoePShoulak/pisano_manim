@@ -24,6 +24,7 @@ clean:
 
 scrub: clean
 	rm -rf ./media/videos/scene/*/*.mp4
+	rm -rf ./media/videos/scene/*/*.srt
 
 nuke: scrub
 	rm -rf ./exports/*

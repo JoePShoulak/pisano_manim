@@ -1,6 +1,7 @@
 from manim import *
+from manim_voiceover import VoiceoverScene
 
-class PisanoScene(Scene):
+class PisanoScene(VoiceoverScene):
     def construct(self):
         self.HIGHLIGHT = YELLOW_D
 
