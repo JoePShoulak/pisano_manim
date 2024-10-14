@@ -22,7 +22,7 @@ class Fibonacci(PisanoScene):
         self.next_section("NUMBERS")
         with self.voiceover(
             """We start with 0 and 1 for some rather philisophical reasons, and then continue finding sums. 
-            We <bookmark mark='find'/>find another 1, a 2, 3, 5, 8, 13, 21, 34, and so on
+            We <bookmark mark='find'/>find another 1... a 2... 3... 5... 8... 13... 21... 34... and so on
         """):
             vals = [0,1,1]
             eqns = VGroup(MathTex(*r"{:.0f}  +  {:.0f}  =  {:.0f}".format(*vals).split("  ")))
@@ -65,7 +65,7 @@ class Fibonacci(PisanoScene):
             self.wait()
 
         # Create our modulus numbers
-        with self.voiceover("This leaves us with 0, 1, 1, 2, 3, 5, 8, 3, 1, 4, and so on"):
+        with self.voiceover("This leaves us with 0... 1... 1... 2... 3... 5... 8... 3... 1... 4... and so on"):
             modEqns = VGroup(*[MathTex(int((eqn if len(eqn) == 1 else eqn[4]).get_tex_string()) % 10).next_to(eqn, DOWN, buff=2) for eqn in eqns[:-1]])
             modEqns += MathTex(r"\ldots").next_to(modEqns[-1], RIGHT).align_to(eqns[-1], RIGHT)
 

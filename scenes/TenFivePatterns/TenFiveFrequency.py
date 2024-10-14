@@ -4,9 +4,24 @@ from templates import TenFivePattern
 class TenFiveFrequency(TenFivePattern):
     def construct(self):
         super().construct()
-        self.writeSummary(Tex("Numbers of the same parity have the same ", "frequency", font_size=34).set_color_by_tex("frequency", self.HIGHLIGHT))
-        for i in range(2):
-            self.playDemo(i)
+        with self.voiceover(
+            """Now this time we won't be searching on lines, but we will find some!"""
+        ):
+            self.writeSummary(Tex("Numbers of the same parity have the same ", "frequency", font_size=34).set_color_by_tex("frequency", self.HIGHLIGHT))
+
+        with self.voiceover(
+            """If we look at the numbers of 0s... 2s... 4s... 6s... and 8s... we see they're all the same!"""
+        ):
+            self.playDemo(0)
+
+        with self.voiceover(
+            """And the same is true for 1s... 3s... 5s... 7s... and 9s... but just with twice as many of each!"""
+        ):
+            self.playDemo(1)
+
+        with self.voiceover("And even when we're not looking for diagonals, they can still show up!"):
+            self.wait_for_voiceover()
+
         self.cleanup()
 
     def playDemo(self, index):
