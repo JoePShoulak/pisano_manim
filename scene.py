@@ -4,6 +4,9 @@ from scenes import *
 
 config["max_files_cached"] = -1
 
+class IntroScene(Intro):
+    pass
+
 class FibonacciScene(Fibonacci):
     pass
 
