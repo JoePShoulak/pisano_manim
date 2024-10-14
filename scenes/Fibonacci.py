@@ -55,7 +55,8 @@ class Fibonacci(VoiceoverScene):
             )
 
         self.next_section("MODULUS")
-        with self.voiceover("""Taking the modulus just means dividing by a number, but looking at the remainder instead of the answer to the division.
+        with self.voiceover("""We're going to start by taking the Fibonacci numbers modulus (or, mod) 10. 
+                            Taking the mod of something just means dividing by a number, but looking at the remainder instead of the answer to the division.
                             Conveniently, when doing so with <bookmark mark='mod10'/>10, that just leaves the one's digit."""):
             # New definition at the top of the screen
             self.wait_until_bookmark('mod10')
@@ -64,31 +65,30 @@ class Fibonacci(VoiceoverScene):
             self.play(Write(subtitle))
             self.wait()
 
-        # # Create our modulus numbers
-        # modEqns = VGroup(*[MathTex(int((eqn if len(eqn) == 1 else eqn[4]).get_tex_string()) % 10).next_to(eqn, DOWN, buff=2) for eqn in eqns[:-1]])
-        # modEqns += MathTex(r"\ldots").next_to(modEqns[-1], RIGHT).align_to(eqns[-1], RIGHT)
+        # Create our modulus numbers
+        with self.voiceover("This leaves us with 0, 1, 1, 2, 3, 5, 8, 3, 1, 4", ):
+            modEqns = VGroup(*[MathTex(int((eqn if len(eqn) == 1 else eqn[4]).get_tex_string()) % 10).next_to(eqn, DOWN, buff=2) for eqn in eqns[:-1]])
+            modEqns += MathTex(r"\ldots").next_to(modEqns[-1], RIGHT).align_to(eqns[-1], RIGHT)
 
-        # # Make an arrow with a label to be clear what we're doing
-        # arrow = Arrow(start=UP, end=DOWN).next_to(modEqns[0], UP)
-        # arrowGroup = VGroup(arrow, MathTex(r"\bmod_{10}", color=RED).add_updater(lambda l : l.next_to(arrow, RIGHT)))
+            # Make an arrow with a label to be clear what we're doing
+            arrow = Arrow(start=UP, end=DOWN).next_to(modEqns[0], UP)
+            arrowGroup = VGroup(arrow, MathTex(r"\bmod_{10}", color=RED).add_updater(lambda l : l.next_to(arrow, RIGHT)))
 
-        # # Animate the taking of the modulus
-        # self.play(Write(modEqns[0]), Write(arrowGroup))
-        # self.wait()
-        # for eqn in modEqns[1:-1]:
-        #     self.play(
-        #         AnimationGroup(Write(eqn)),
-        #         AnimationGroup(arrow.animate.next_to(eqn, UP), run_time=0.33),
-        #         lag_ratio=0.5
-        #     )
-        # self.play(Write(modEqns[-1]), FadeOut(arrowGroup))
-        # self.wait()
+            # Animate the taking of the modulus
+            self.play(Write(modEqns[0]), Write(arrowGroup))
+            for eqn in modEqns[1:-1]:
+                self.play(
+                    AnimationGroup(Write(eqn)),
+                    AnimationGroup(arrow.animate.next_to(eqn, UP), run_time=0.33),
+                    lag_ratio=0.5
+                )
+            self.play(Write(modEqns[-1]), FadeOut(arrowGroup))
 
-        # # Fade out the old numbers and shift these up; left shift is to be centered way later on
-        # self.play(modEqns.animate.arrange(RIGHT).to_edge(UP, buff=3).shift(LEFT*0.12590103), FadeOut(eqns))
-        # self.wait()
+        # Fade out the old numbers and shift these up; left shift is to be centered way later on
+        self.play(modEqns.animate.arrange(RIGHT).to_edge(UP, buff=3).shift(LEFT*0.12590103), FadeOut(eqns))
+        self.wait()
 
-        # self.next_section("OUTRO")
-        # self.play(Transform(title, Text("Pisano Arrays", font_size=89).to_edge(UP)), FadeOut(subtitle))
-        # self.wait()
+        self.next_section("OUTRO")
+        self.play(Transform(title, Text("Pisano Arrays", font_size=89).to_edge(UP)), FadeOut(subtitle))
+        self.wait()
 
