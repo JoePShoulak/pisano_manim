@@ -16,10 +16,9 @@ class PisanoScene(VoiceoverScene):
         return grid.arrange_in_grid(rows=h, flow_order="dr")
     
     def makeGridLabel(self, m, h):
-        m, h = str(m), str(h)
-
         label = MathTex("P(", m, ",", h, ")")
-        label.set_color_by_tex(m, RED).set_color_by_tex(h, ORANGE)
+        label[1].set_color(RED)
+        label[3].set_color(ORANGE)
         return label.scale(1.875).to_edge(UL)
     
     def palindromeAnim(self, mobjDict = {"mobj": VGroup()}):
