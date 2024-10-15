@@ -1,4 +1,5 @@
 from manim import *
+from templates import PisanoScene
 
 def mySquare(size):
   return Square(side_length=size).set_fill(YELLOW, opacity=.7).flip(LEFT)
@@ -6,8 +7,12 @@ def mySquare(size):
 def myArc(size):
   return Arc(angle=PI/2, radius=size).flip(LEFT).rotate(-PI/2)
 
-class Intro(MovingCameraScene):
+class Intro(PisanoScene, MovingCameraScene):
   def construct(self):
+    super().construct()
+    with self.voiceover("intro"):
+      pass
+
     scaleFactor = 2
 
     playTime = 0.5
