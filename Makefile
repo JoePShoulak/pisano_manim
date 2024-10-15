@@ -33,7 +33,7 @@ nuke: scrub
 	sed 's/FOLDER/$(FOLDER)/g' sceneLists/master.txt > $@
 
 output_%.mp4: %.txt
-	ffmpeg -f concat -safe 0 -y -i $< -c copy -map 0 exports/output_$(Q).mp4
+	ffmpeg -f concat -safe 0 -y -i $< -c:v copy -c:a aac -b:a 192k -map 0:v -map 0:a? exports/output_$(Q).mp4
 
 export: output_$(Q).mp4
 
