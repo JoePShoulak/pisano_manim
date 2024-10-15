@@ -33,8 +33,6 @@ class TenFiveTopRow(TenFivePattern):
             "We start by decomposing f sub 5 n into the two numbers that came before it",
             "Then we do that same thing, but to the largest Fibonacci number on the right side.",
             "and do it again",
-            """and after one more time you may begin noticing these terms have Fibonacci numbers in them! That's no coincidence, and helps make this work.
-            so now we have 5 times some Fibonacci number, plus 3 times another Fibonacci number, f sub 5 n minus 5""",
         ]
 
         # Proof that F(5n) = 5k
@@ -42,9 +40,9 @@ class TenFiveTopRow(TenFivePattern):
             r"f_{5n} &= f_{5n-1} + f_{5n-2}\\",
             r"&= 2f_{5n-2} + f_{5n-3}\\",
             r"&= 3f_{5n-3} + 2f_{5n-4}\\",
-            r"&= 5f_{5n-4} + 3f_{5n-5}\\",
+            r"&= 5f_{5n-4} + ", r"3f_{5n-5}\\",
             r"&= 5f_{5n-4} + ", r"3f_{5(n-1)}\\",
-            r"&= 5f_{5n-4} + 3 \times 5m\\",
+            r"&= 5f_{5n-4} + ", r"3 \times 5m\\",
             r"&= 5(f_{5n-4} + 3m)\\",
             r"f_{5n} &= 5k\\",
             r"f_{10}&=55=5k_2\\",
@@ -55,35 +53,44 @@ class TenFiveTopRow(TenFivePattern):
             with self.voiceover(vo):
                 self.play(Write(line))
 
+        with self.voiceover(
+            """and after one more time you may begin noticing these terms have Fibonacci numbers in them! That's no coincidence, and helps make this work.
+            so now we have 5 times some Fibonacci number, plus 3 times another Fibonacci number, f sub 5 n minus 5"""):
+            self.play(Write(proof[3]), Write(proof[4]))
+            self.play(proof[4].animate.set_color(self.HIGHLIGHT))
+
+
         with self.voiceover("but we could rewrite that same number as f sub 5 times n minus one"):
-            self.play(Write(proof[-7:-5]))
-            # self.play(proof[-8].animate.set_color(self.HIGHLIGHT))
+            self.play(Write(proof[5]), Write(proof[6]))
+            self.play(proof[4].animate.set_color(WHITE), proof[6].animate.set_color(self.HIGHLIGHT))
 
-        # with self.voiceover("which, if our hypothesis is correct, is itself a multiple of 5"):
-        #     self.play(Write(proof[-5]))
+        with self.voiceover("which, if our hypothesis is correct, is itself a multiple of 5"):
+            self.play(Write(proof[7]), Write(proof[8]))
+            self.play(proof[6].animate.set_color(WHITE), proof[8].animate.set_color(self.HIGHLIGHT))
 
-        # with self.voiceover("that means we can factor a 5 out of our entire definition of f sub 5 n"):
-        #     self.play(Write(proof[-4]))
+        with self.voiceover("that means we can factor a 5 out of our entire definition of f sub 5 n"):
+            self.play(Write(proof[9]))
+            self.play(proof[6].animate.set_color(WHITE))
 
-        # with self.voiceover("""and since all that's left is an integer, we're safe replacing it with k, therefore proving our point. Well, almost.
-        #     At this point, we've basically proven that if some Fibonacci number with an index that's a multiple of 5 is itself a multiple of 5,
-        #     then that would be true for the Fibonacci number 5 terms after it, and 5 terms after that, and so on. We still need to prove there's some situation where it's true at all.
-        #     As my Discrete Mathematics teacher taught me, induction is like climbing a ladder. First you prove that the ladder 'works', then you find the bottom few rungs to prove it 'exists'."""):
-        #     self.play(Write(proof[-3]))
+        with self.voiceover("""and since all that's left is an integer, we're safe replacing it with k, therefore proving our point. Well, almost.
+            At this point, we've basically proven that if some Fibonacci number with an index that's a multiple of 5 is itself a multiple of 5,
+            then that would be true for the Fibonacci number 5 terms after it, and 5 terms after that, and so on. We still need to prove there's some situation where it's true at all.
+            As my Discrete Mathematics teacher taught me, induction is like climbing a ladder. First you prove that the ladder 'works', then you find the bottom few rungs to prove it 'exists'."""):
+            self.play(Write(proof[10]))
 
-        # with self.voiceover(
-        #     """So, by writing the first two Fibonacci numbers that meat our pattern (above zero), we can think about 'climbing up' this proof. 
-        #     We start with the two things that are obviously true, and continue climbing up the logic until we reach our general proof. 
-        #     Beautiful, isn't it? """
-        # ):
-        #     self.play(Write(proof[-2:]))
+        with self.voiceover(
+            """So, by writing the first two Fibonacci numbers that meat our pattern (above zero), we can think about 'climbing up' this proof. 
+            We start with the two things that are obviously true, and continue climbing up the logic until we reach our general proof. 
+            Beautiful, isn't it? """
+        ):
+            self.play(Write(proof[-2:]))
 
-        # with self.voiceover(
-        #     """For those that were craving this level of algebra all-video-long, here's a homework problem for you:
-        #     <bookmark mark='prove'/>Prove that every 15th Fibonacci number is a multiple of 10, which would explain the 0s in our grid."""
-        # ):
-        #     self.wait_until_bookmark("prove")
-        #     self.play(Transform(proof, Tex("?").scale(3)), FadeOut(reminder), Transform(self.title, Tex("Proof: $f_{15n}=10k$", font_size=89).to_edge(UP)))
+        with self.voiceover(
+            """For those that were craving this level of algebra all-video-long, here's a homework problem for you:
+            <bookmark mark='prove'/>Prove that every 15th Fibonacci number is a multiple of 10, which would explain the 0s in our grid."""
+        ):
+            self.wait_until_bookmark("prove")
+            self.play(Transform(proof, Tex("?").scale(3)), FadeOut(reminder), Transform(self.title, Tex("Proof: $f_{15n}=10k$", font_size=89).to_edge(UP)))
 
-        # self.play(FadeOut(proof), FadeOut(self.title))
-        # self.wait()
+        self.play(FadeOut(proof), FadeOut(self.title))
+        self.wait()
