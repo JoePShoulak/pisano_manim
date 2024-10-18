@@ -22,9 +22,7 @@ class TenFiveTopRow(TenFivePattern):
             """So we're trying to prove every fifth Fibonacci number is a multiple of 5.
             I'll show you how to do that using nothing but the <bookmark mark='def'/>definition of the Fibonacci numbers,
             and something called inductive reasoning.
-"""
-        ):
-            self.next_section("PROOF")
+        """):
             reminder = MathTex(r"f_{n}=f_{n-1}+f_{n-2}", font_size=55).next_to(self.title, DOWN)
             self.wait_until_bookmark('def')
             self.play(Write(reminder))
