@@ -54,23 +54,24 @@ class TenFiveTopRow(TenFivePattern):
                 self.play(Write(line))
 
         with self.voiceover(
-            """and after one more time you may begin noticing these terms have Fibonacci numbers in them! That's no coincidence, and helps make this work.
-            so now we have 5 times some Fibonacci number, plus 3 times another Fibonacci number, f sub 5 n minus 5"""):
-            self.play(Write(proof[3]), Write(proof[4]))
+            """and after one more time you may begin noticing these terms have Fibonacci numbers in them! That's no coincidence, and helps make this work. 
+            <bookmark mark='so'/>So now we have 5 times some Fibonacci number, plus 3 times another Fibonacci number, f sub 5 n minus 5"""):
+            self.play(Write(proof[3:5]))
+            self.wait_until_bookmark('so')
             self.play(proof[4].animate.set_color(self.HIGHLIGHT))
 
+        with self.voiceover("but we could rewrite that same number <bookmark mark='as'/>as f sub 5 times n minus one"):
+            self.play(Write(proof[5:7]), proof[3:5].animate.set_color(WHITE))
+            self.wait_until_bookmark('as')
+            self.play(proof[6].animate.set_color(self.HIGHLIGHT))
 
-        with self.voiceover("but we could rewrite that same number as f sub 5 times n minus one"):
-            self.play(Write(proof[5]), Write(proof[6]))
-            self.play(proof[4].animate.set_color(WHITE), proof[6].animate.set_color(self.HIGHLIGHT))
-
-        with self.voiceover("which, if our hypothesis is correct, is itself a multiple of 5"):
-            self.play(Write(proof[7]), Write(proof[8]))
-            self.play(proof[6].animate.set_color(WHITE), proof[8].animate.set_color(self.HIGHLIGHT))
+        with self.voiceover("which, if our hypothesis is correct, <bookmark mark='is'/>is itself a multiple of 5"):
+            self.play(Write(proof[7:9]), proof[5:7].animate.set_color(WHITE))
+            self.wait_until_bookmark('is')
+            self.play(proof[8].animate.set_color(self.HIGHLIGHT))
 
         with self.voiceover("that means we can factor a 5 out of our entire definition of f sub 5 n"):
-            self.play(Write(proof[9]))
-            self.play(proof[6].animate.set_color(WHITE))
+            self.play(Write(proof[9]), proof[7:9].animate.set_color(WHITE))
 
         with self.voiceover("""and since all that's left is an integer, we're safe replacing it with k, therefore proving our point. Well, almost.
             At this point, we've basically proven that if some Fibonacci number with an index that's a multiple of 5 is itself a multiple of 5,
@@ -92,5 +93,7 @@ class TenFiveTopRow(TenFivePattern):
             self.wait_until_bookmark("prove")
             self.play(Transform(proof, Tex("?").scale(3)), FadeOut(reminder), Transform(self.title, Tex("Proof: $f_{15n}=10k$", font_size=89).to_edge(UP)))
 
-        self.play(FadeOut(proof), FadeOut(self.title))
-        self.wait()
+        with self.voiceover(
+            """As a disclaimer, this isn't the most rigorous example of proof by induction,
+            but I hope that it gave you a feel of what we're trying to do, and how we're trying to do it."""):
+            self.play(FadeOut(proof), FadeOut(self.title))
