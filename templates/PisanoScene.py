@@ -5,9 +5,12 @@ from manim_voiceover.services.azure import AzureService
 class PisanoScene(VoiceoverScene):
     def construct(self):
         self.HIGHLIGHT = YELLOW_D
-        self.set_speech_service(AzureService(
-                voice="en-US-AriaNeural",
-                style="newscast-casual",))
+        self.set_speech_service(
+        AzureService(
+            voice="en-US-AriaNeural",
+            style="newscast-casual"
+        )
+        )
         
     def pisanoSequence(self, m):
         ps = [0, 1]

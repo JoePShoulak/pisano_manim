@@ -10,7 +10,7 @@ class Fibonacci(PisanoScene):
             but first we have to start with the Fibonacci numbers"""):
             # Title and definition of the Fibonacci numbers
             title = Text("Fibonacci Numbers", font_size=89).to_edge(UP)
-            subtitle = MathTex(r"f_{0} = 0, \ f_{1} = 1, \ f_{n}=f_{n-1}+f_{n-2}", font_size=55)
+            subtitle = MathTex(r"F_{0} = 0, \ F_{1} = 1, \ F_{n}=F_{n-1}+F_{n-2}", font_size=55)
             subtitle.to_edge(UP, buff=2)
             self.play(Write(title))
         

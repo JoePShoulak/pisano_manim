@@ -7,7 +7,7 @@ Which could be viewed (with a rotation) as
 ...BBB TBB
 
 # ToDos
-Look into a proof by contradiction that proves f_{15k+5} and f_{15k+10} are not divisible by 5
+Look into a proof by contradiction that proves F_{15k+5} and F_{15k+10} are not divisible by 5
 
 # Current video notes
 Reversable makeEquation in DiagSum

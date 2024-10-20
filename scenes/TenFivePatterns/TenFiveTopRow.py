@@ -15,7 +15,7 @@ class TenFiveTopRow(TenFivePattern):
         """):
             self.play(self.unhighlight(self.grid))
             gridFrame = VGroup(self.summary, self.grid, self.label)
-            self.play(FadeOut(gridFrame), Transform(self.title, Tex("Proof: $f_{5n}=5k$", font_size=89).to_edge(UP)))
+            self.play(FadeOut(gridFrame), Transform(self.title, Tex("Proof: $F_{5n}=5k$", font_size=89).to_edge(UP)))
             self.wait()
 
         with self.voiceover(
@@ -23,7 +23,7 @@ class TenFiveTopRow(TenFivePattern):
             I'll show you how to do that using nothing but the <bookmark mark='def'/>definition of the Fibonacci numbers,
             and something called inductive reasoning.
         """):
-            reminder = MathTex(r"f_{n}=f_{n-1}+f_{n-2}", font_size=55).next_to(self.title, DOWN)
+            reminder = MathTex(r"F_{n}=F_{n-1}+F_{n-2}", font_size=55).next_to(self.title, DOWN)
             self.wait_until_bookmark('def')
             self.play(Write(reminder))
 
@@ -35,16 +35,16 @@ class TenFiveTopRow(TenFivePattern):
 
         # Proof that F(5n) = 5k
         proof = MathTex(
-            r"f_{5n} &= f_{5n-1} + f_{5n-2}\\",
-            r"&= 2f_{5n-2} + f_{5n-3}\\",
-            r"&= 3f_{5n-3} + 2f_{5n-4}\\",
-            r"&= 5f_{5n-4} + ", r"3f_{5n-5}\\",
-            r"&= 5f_{5n-4} + ", r"3f_{5(n-1)}\\",
-            r"&= 5f_{5n-4} + ", r"3 \times 5m\\",
-            r"&= 5(f_{5n-4} + 3m)\\",
-            r"f_{5n} &= 5k\\",
-            r"f_{10}&=55=5k_2\\",
-            r"f_5&=5=5k_1", font_size=34,
+            r"F_{5n} &= F_{5n-1} + F_{5n-2}\\",
+            r"&= 2F_{5n-2} + F_{5n-3}\\",
+            r"&= 3F_{5n-3} + 2F_{5n-4}\\",
+            r"&= 5F_{5n-4} + ", r"3F_{5n-5}\\",
+            r"&= 5F_{5n-4} + ", r"3F_{5(n-1)}\\",
+            r"&= 5F_{5n-4} + ", r"3 \times 5m\\",
+            r"&= 5(F_{5n-4} + 3m)\\",
+            r"F_{5n} &= 5k\\",
+            r"F_{10}&=55=5k_2\\",
+            r"F_&=5=5k_1", font_size=34,
         ).next_to(reminder, DOWN)
 
         for vo, line in zip(vos, proof):
@@ -89,7 +89,7 @@ class TenFiveTopRow(TenFivePattern):
             <bookmark mark='prove'/>Prove that every 15th Fibonacci number is a multiple of 10, which would explain the 0s in our grid."""
         ):
             self.wait_until_bookmark("prove")
-            self.play(Transform(proof, Tex("?").scale(3)), FadeOut(reminder), Transform(self.title, Tex("Proof: $f_{15n}=10k$", font_size=89).to_edge(UP)))
+            self.play(Transform(proof, Tex("?").scale(3)), FadeOut(reminder), Transform(self.title, Tex("Proof: $F_{15n}=10k$", font_size=89).to_edge(UP)))
 
         with self.voiceover(
             """As a disclaimer, this isn't the most rigorous example of proof by induction,
