@@ -43,8 +43,8 @@ class TenFiveTopRow(TenFivePattern):
             r"&= 5F_{5n-4} + ", r"3 \times 5m\\",
             r"&= 5(F_{5n-4} + 3m)\\",
             r"F_{5n} &= 5k\\",
-            r"F_{10}&=55=5k_2\\",
-            r"F_&=5=5k_1", font_size=34,
+            r"F_{10} &= 55 = 5k_2\\",
+            r"F_5 &= 5 = 5k_1", font_size=34,
         ).next_to(reminder, DOWN)
 
         for vo, line in zip(vos, proof):

@@ -6,10 +6,10 @@ class PisanoScene(VoiceoverScene):
     def construct(self):
         self.HIGHLIGHT = YELLOW_D
         self.set_speech_service(
-        AzureService(
-            voice="en-US-AriaNeural",
-            style="newscast-casual"
-        )
+            AzureService(
+                voice="en-US-AriaNeural",
+                style="newscast-casual"
+            )
         )
         
     def pisanoSequence(self, m):
